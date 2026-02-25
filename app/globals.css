@@ -1,18 +1,14 @@
 @import "tailwindcss";
 
-/* --- 1. THEME DEFINITIONS (Tailwind v4 Style) --- */
 @theme {
-  /* Colors */
   --color-void: #020202;
   --color-chrono-cyan: #00f2ff;
   --color-oxidized-amber: #ff9d00;
   --color-cyan-glow: rgba(0, 242, 255, 0.6);
   --color-cyan-border: rgba(0, 242, 255, 0.15);
   
-  /* Fonts */
-  --font-mono: "IBM Plex Mono", "JetBrains Mono", monospace;
+  --font-mono: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 
-  /* Animations & Keyframes */
   @keyframes pulse {
     0%, 100% { transform: scale(1); opacity: 1; }
     50% { transform: scale(1.02); opacity: 0.5; }
@@ -31,9 +27,11 @@
     80% { transform: translate(2px, -2px); }
     100% { transform: translate(0); }
   }
+
+  --animation-scanline: scanline 3s linear infinite;
+  --animation-pulse-slow: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-/* --- 2. BASE STYLES --- */
 :root {
   --foreground-rgb: 0, 242, 255;
   --background-start-rgb: 2, 2, 2;
@@ -49,9 +47,6 @@
   }
 }
 
-/* --- 3. UTILITY CLASSES --- */
-
-/* The flickering grid background */
 .cyber-grid {
   background-image:
     linear-gradient(to right, rgba(0, 242, 255, 0.05) 1px, transparent 1px),
@@ -59,7 +54,6 @@
   background-size: 40px 40px;
 }
 
-/* Glass effect for UI panels */
 .glass-morphism {
   background: rgba(10, 25, 47, 0.2);
   backdrop-filter: blur(12px);
@@ -67,7 +61,6 @@
   border: 1px solid rgba(0, 242, 255, 0.1);
 }
 
-/* CRT Scanline Overlay */
 .scanline-overlay {
   position: fixed;
   inset: 0;
@@ -80,18 +73,15 @@
   background-size: 100% 4px;
 }
 
-/* Live pulse animation for the top bar */
 .live-pulse {
   @apply absolute top-0 left-0 right-0 h-1 bg-cyan-glow/50;
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  animation: var(--animation-pulse-slow);
 }
 
-/* Glitch effect for buttons */
 .glitch-btn:hover {
   animation: glitch 0.4s infinite;
 }
 
-/* Standardized scrollbar for the "Terminal" feel */
 ::-webkit-scrollbar {
   width: 5px;
 }
@@ -102,3 +92,4 @@
   background: rgba(0, 242, 255, 0.3);
   border-radius: 10px;
 }
+
