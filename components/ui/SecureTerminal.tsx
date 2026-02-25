@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface SecureTerminalProps {
   onApiKeySet: (apiKey: string) => void;
@@ -9,6 +9,7 @@ interface SecureTerminalProps {
 
 export const SecureTerminal = ({ onApiKeySet }: SecureTerminalProps) => {
   const [key, setKey] = useState('');
+  const [showGuide, setShowGuide] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,102 +17,137 @@ export const SecureTerminal = ({ onApiKeySet }: SecureTerminalProps) => {
   };
 
   return (
-    <div className="relative z-50 w-full max-w-4xl p-1 shadow-2xl rounded-2xl bg-gradient-to-b from-white/20 to-transparent">
-      <div className="relative bg-void/90 backdrop-blur-3xl rounded-2xl overflow-hidden border border-white/10">
+    <div className="relative z-50 w-full max-w-5xl p-1 shadow-2xl rounded-2xl bg-gradient-to-b from-white/20 to-transparent">
+      <div className="relative bg-void/95 backdrop-blur-3xl rounded-2xl overflow-hidden border border-white/10">
         
         {/* Top Header Bar */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-white/5">
           <div className="flex items-center gap-4">
             <div className="flex gap-1.5">
-              <div className="w-3 h-3 rounded-full bg-red-500/50" />
+              <div className="w-3 h-3 rounded-full bg-red-500/50 shadow-[0_0_8px_red]" />
               <div className="w-3 h-3 rounded-full bg-yellow-500/50" />
               <div className="w-3 h-3 rounded-full bg-green-500/50" />
             </div>
             <span className="text-[10px] font-black tracking-[0.2em] text-chrono-cyan/50 uppercase">
-              Project Chronos // Temporal Uplink
+              Project Chronos // System_Auth
             </span>
           </div>
-          <span className="text-[10px] text-white/30 font-mono">SECURE_NODE: DC-7 // STATUS: ENCRYPTED</span>
+          <button 
+            onClick={() => setShowGuide(!showGuide)}
+            className="text-[10px] text-chrono-purple font-black hover:text-white transition-colors cursor-help border border-chrono-purple/30 px-2 py-1 rounded"
+          >
+            {showGuide ? 'CLOSE_MANUAL' : 'GET_ACCESS_MANUAL'}
+          </button>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-0">
+        <div className="grid md:grid-cols-2 gap-0 relative">
           {/* Left Side: Information & Description */}
-          <div className="p-8 border-r border-white/10 bg-gradient-to-br from-chrono-cyan/5 to-transparent">
-            <h1 className="text-4xl font-black text-white mb-2 tracking-tighter uppercase italic">
+          <div className="p-10 border-r border-white/10 bg-gradient-to-br from-chrono-purple/5 to-transparent">
+            <h1 className="text-5xl font-black text-white mb-4 tracking-tighter uppercase italic">
               Terminal <span className="text-chrono-cyan text-neon">Access</span>
             </h1>
-            <p className="text-chrono-cyan/60 text-sm leading-relaxed mb-6 font-medium">
-              You are attempting to access the **Project Chronos Reconstruction Engine**. 
-              This system utilizes 25th-century neural weights to restore artifact fragments 
-              from corrupted timelines.
+            <p className="text-chrono-cyan/70 text-sm leading-relaxed mb-8 font-medium">
+              Welcome to the <span className="text-white">Chronos Reconstruction Engine</span>. 
+              To proceed with artifact restoration, you must establish a secure uplink 
+              via the Pollinations AI Nexus.
             </p>
             
-            <div className="space-y-4">
-              <div className="flex items-start gap-3">
-                <div className="mt-1 w-1.5 h-1.5 bg-chrono-cyan rounded-full shadow-[0_0_8px_#00f2ff]" />
-                <div className="text-[11px] text-white/40 uppercase font-bold tracking-wider">
-                  <span className="text-white">Protocol:</span> Deep-Scan Vision Restoration
+            <div className="space-y-5">
+              {[
+                { label: 'Protocol', val: 'Deep-Scan Vision' },
+                { label: 'Encryption', val: 'Neural Nexus v.4' },
+                { label: 'Safety', val: 'Timeline Anchored' }
+              ].map((item, i) => (
+                <div key={i} className="flex items-center gap-4 group">
+                  <div className="w-2 h-2 bg-chrono-cyan rounded-full shadow-[0_0_10px_#00f2ff] group-hover:scale-150 transition-transform" />
+                  <div className="text-[11px] text-white/40 uppercase font-bold tracking-widest">
+                    <span className="text-white">{item.label}:</span> {item.val}
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="mt-1 w-1.5 h-1.5 bg-chrono-cyan rounded-full shadow-[0_0_8px_#00f2ff]" />
-                <div className="text-[11px] text-white/40 uppercase font-bold tracking-wider">
-                  <span className="text-white">Encryption:</span> Pollinations AI Nexus
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="mt-1 w-1.5 h-1.5 bg-chrono-cyan rounded-full shadow-[0_0_8px_#00f2ff]" />
-                <div className="text-[11px] text-white/40 uppercase font-bold tracking-wider">
-                  <span className="text-white">Warning:</span> Timeline divergence may occur
-                </div>
-              </div>
+              ))}
             </div>
           </div>
 
-          {/* Right Side: Input Form */}
-          <div className="p-8 flex flex-col justify-center bg-black/40">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <label className="block text-[10px] font-black text-chrono-cyan uppercase mb-2 tracking-widest">
-                  Authentication Token
-                </label>
-                <div className="relative group">
-                  <input
-                    type="password"
-                    value={key}
-                    onChange={(e) => setKey(e.target.value)}
-                    className="w-full bg-void/50 border-2 border-white/10 rounded-xl px-4 py-4 text-white focus:outline-none focus:border-chrono-cyan transition-all group-hover:border-white/20 shadow-inner"
-                    placeholder="••••••••••••••••"
-                  />
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-20 group-hover:opacity-100 transition-opacity">
-                    <svg className="w-5 h-5 text-chrono-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
+          {/* Right Side: Input Form OR Guide */}
+          <div className="p-10 flex flex-col justify-center bg-black/40 min-h-[400px]">
+            <AnimatePresence mode="wait">
+              {!showGuide ? (
+                <motion.form 
+                  key="login"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  onSubmit={handleSubmit} 
+                  className="space-y-8"
+                >
+                  <div>
+                    <label className="block text-[10px] font-black text-chrono-cyan uppercase mb-3 tracking-widest">
+                      Authentication Token [API_KEY]
+                    </label>
+                    <div className="relative group">
+                      <input
+                        type="password"
+                        value={key}
+                        onChange={(e) => setKey(e.target.value)}
+                        className="w-full bg-void/80 border-2 border-white/10 rounded-xl px-5 py-5 text-white focus:outline-none focus:border-chrono-purple transition-all group-hover:border-white/20 shadow-inner font-mono"
+                        placeholder="••••••••••••••••"
+                      />
+                    </div>
                   </div>
-                </div>
-              </div>
 
-              <motion.button
-                whileHover={{ scale: 1.02, backgroundColor: 'rgba(0, 242, 255, 0.2)' }}
-                whileTap={{ scale: 0.98 }}
-                type="submit"
-                className="w-full py-4 bg-chrono-cyan/10 border-2 border-chrono-cyan text-chrono-cyan font-black uppercase tracking-[0.3em] rounded-xl shadow-[0_0_20px_rgba(0,242,255,0.1)] hover:shadow-[0_0_30px_rgba(0,242,255,0.3)] transition-all"
-              >
-                Sync Timeline
-              </motion.button>
-              
-              <p className="text-[9px] text-center text-white/20 uppercase font-bold">
-                Identity Verification Powered by Pollinations Nexus
-              </p>
-            </form>
+                  <motion.button
+                    whileHover={{ scale: 1.02, backgroundColor: 'rgba(188, 19, 254, 0.2)' }}
+                    whileTap={{ scale: 0.98 }}
+                    type="submit"
+                    className="w-full py-5 bg-chrono-purple/10 border-2 border-chrono-purple text-chrono-purple font-black uppercase tracking-[0.4em] rounded-xl shadow-[0_0_20px_rgba(188,19,254,0.2)] hover:shadow-[0_0_40px_rgba(188,19,254,0.4)] transition-all italic"
+                  >
+                    Sync Timeline
+                  </motion.button>
+                </motion.form>
+              ) : (
+                <motion.div 
+                  key="guide"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="space-y-6 text-xs"
+                >
+                  <h3 className="text-chrono-cyan font-black uppercase tracking-widest border-b border-chrono-cyan/20 pb-2">How to get access:</h3>
+                  <ol className="space-y-4 font-bold text-white/70 uppercase tracking-tighter">
+                    <li className="flex gap-3">
+                      <span className="text-chrono-purple">01.</span>
+                      <span>Visit <a href="https://pollinations.ai" target="_blank" className="underline text-chrono-cyan hover:text-white">pollinations.ai</a></span>
+                    </li>
+                    <li className="flex gap-3">
+                      <span className="text-chrono-purple">02.</span>
+                      <span>Log in or Sign up for a free developer account.</span>
+                    </li>
+                    <li className="flex gap-3">
+                      <span className="text-chrono-purple">03.</span>
+                      <span>Navigate to your <span className="text-white italic">Settings</span> or <span className="text-white italic">API section</span>.</span>
+                    </li>
+                    <li className="flex gap-3">
+                      <span className="text-chrono-purple">04.</span>
+                      <span>Copy your <span className="text-chrono-cyan">Secret Key</span> and paste it here.</span>
+                    </li>
+                  </ol>
+                  <div className="p-4 bg-history-red/10 border border-history-red/20 rounded-lg">
+                    <p className="text-[10px] text-history-red font-black">WARNING: NEVER SHARE YOUR KEY. IT IS YOUR TEMPORAL SIGNATURE.</p>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
         
         {/* Bottom Technical Readout */}
-        <div className="px-6 py-2 border-t border-white/5 bg-black/60 flex justify-between items-center text-[9px] font-mono text-chrono-cyan/30 uppercase tracking-[0.2em]">
-          <span>CPU_LOAD: 12.4%</span>
-          <span>MEM_BUFFER: 8192TB</span>
-          <span className="animate-pulse">LATENCY: 14MS</span>
+        <div className="px-6 py-3 border-t border-white/5 bg-black/60 flex justify-between items-center text-[9px] font-mono text-chrono-cyan/30 uppercase tracking-[0.2em]">
+          <span className="flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+            NODE_ACTIVE: DC-7
+          </span>
+          <span>MEM_POOL: 8192TB</span>
+          <span className="digital-fire-text">SECURITY_LEVEL: HIGH</span>
         </div>
       </div>
     </div>
