@@ -15,7 +15,7 @@
 }
 
 body {
-  @apply bg-void text-cyan font-mono;
+  @apply bg-background text-cyan font-mono;
   overflow: hidden;
 }
 
