@@ -16,7 +16,8 @@
 
 body {
   background-color: hsl(var(--background));
-  @apply text-cyan font-mono;
+  color: hsl(var(--foreground));
+  @apply font-mono;
   overflow: hidden;
 }
 
