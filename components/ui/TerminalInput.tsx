@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -13,30 +12,33 @@ export const TerminalInput = ({ onSubmit }: TerminalInputProps) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (url) {
-      onSubmit(url);
-    }
+    if (url.trim()) onSubmit(url);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-full max-w-2xl mx-auto p-4 border border-cyan-border rounded-lg bg-black/30 backdrop-blur-xl">
-      <div className="flex items-center">
-        <span className="text-cyan-glow mr-2">{`>_`}</span>
-        <input
-          type="text"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          placeholder="Enter Artifact Image URL..."
-          className="w-full bg-transparent text-cyan-glow placeholder-cyan-glow/50 focus:outline-none"
-        />
-        <motion.button 
+    <form onSubmit={handleSubmit} className="relative group">
+      {/* Target Reticle Borders */}
+      <div className="absolute -top-2 -left-2 w-4 h-4 border-t-2 border-l-2 border-chrono-cyan group-focus-within:w-6 group-focus-within:h-6 transition-all" />
+      <div className="absolute -bottom-2 -right-2 w-4 h-4 border-b-2 border-r-2 border-chrono-cyan group-focus-within:w-6 group-focus-within:h-6 transition-all" />
+      
+      <div className="flex gap-2">
+        <div className="relative flex-1">
+          <input
+            type="text"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            placeholder="PASTE ARTIFACT SIGNATURE (URL)..."
+            className="w-full bg-white/5 border border-white/10 px-4 py-4 rounded-lg text-chrono-cyan placeholder:text-chrono-cyan/20 focus:outline-none focus:bg-white/10 transition-all font-bold tracking-wider"
+          />
+          <div className="absolute left-0 bottom-0 h-[1px] bg-chrono-cyan w-0 group-focus-within:w-full transition-all duration-500 shadow-[0_0_10px_#00f2ff]" />
+        </div>
+        
+        <button 
           type="submit"
-          className="ml-4 px-4 py-2 bg-cyan-glow/20 text-cyan-glow font-bold rounded-md hover:bg-cyan-glow/40 transition-colors"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+          className="px-6 bg-chrono-cyan text-void font-black uppercase tracking-tighter rounded-lg hover:brightness-125 transition-all"
         >
-          Reconstruct
-        </motion.button>
+          SCAN
+        </button>
       </div>
     </form>
   );
