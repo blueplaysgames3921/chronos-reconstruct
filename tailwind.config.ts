@@ -10,14 +10,6 @@ const config: Config = {
     extend: {
       colors: {
         void: '#0E0B1A',
-        background: 'hsl(var(--background))',
-        foreground: 'hsl(var(--foreground))',
-        primary: {
-          DEFAULT: 'hsl(var(--primary))',
-          foreground: 'hsl(var(--primary-foreground))',
-        },
-        destructive: 'hsl(var(--destructive))',
-        warning: 'hsl(var(--warning))',
       },
     },
   },
