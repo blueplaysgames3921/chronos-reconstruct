@@ -14,76 +14,97 @@ export default function ChronosLab() {
 
   if (!apiKey) {
     return (
-      <main className="h-screen w-screen flex items-center justify-center p-6">
+      <main className="h-screen w-screen flex items-center justify-center p-6 bg-[#02040a]">
+        {/* Added a subtle vignette overlay for depth */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.8)_100%)] pointer-events-none" />
         <SecureTerminal onApiKeySet={setApiKey} />
       </main>
     );
   }
 
   return (
-    <main className="h-screen w-screen flex flex-col overflow-hidden">
-      {/* Top Status Bar */}
-      <header className="h-14 border-b border-chrono-cyan/20 flex items-center justify-between px-8 bg-black/40 backdrop-blur-md">
-        <div className="flex items-center gap-4">
-          <div className="w-2 h-2 rounded-full bg-chrono-cyan animate-pulse shadow-[0_0_10px_#00f2ff]" />
-          <h1 className="text-lg font-black tracking-tighter text-white">CHRONOS_LAB v7.2</h1>
+    <main className="h-screen w-screen flex flex-col bg-[#02040a] relative overflow-hidden text-chrono-cyan">
+      {/* Decorative Technical HUD Overlay */}
+      <div className="absolute inset-0 pointer-events-none opacity-20">
+        <div className="absolute top-20 left-10 w-40 h-1 bg-chrono-cyan/20" />
+        <div className="absolute top-20 left-10 w-1 h-40 bg-chrono-cyan/20" />
+        <div className="absolute bottom-20 right-10 w-40 h-1 bg-chrono-cyan/20" />
+        <div className="absolute bottom-20 right-10 w-1 h-40 bg-chrono-cyan/20" />
+      </div>
+
+      <header className="h-16 border-b border-white/10 flex items-center justify-between px-10 bg-black/60 backdrop-blur-xl relative z-20">
+        <div className="flex items-center gap-6">
+          <div className="text-2xl font-black italic tracking-tighter text-white">
+            CHRONOS<span className="text-chrono-cyan">_OS</span>
+          </div>
+          <div className="h-6 w-[1px] bg-white/10" />
+          <div className="flex flex-col">
+            <span className="text-[10px] font-black uppercase text-white/40 leading-none">Temporal Laboratory</span>
+            <span className="text-[9px] font-mono text-chrono-cyan/60">NODE_ID: {Math.random().toString(16).slice(2, 8).toUpperCase()}</span>
+          </div>
         </div>
-        <div className="text-[10px] space-x-6 text-chrono-cyan/60 font-bold">
-          <span>COORDINATES: 48.8566° N, 2.3522° E</span>
-          <span>TIMELINE: PRIMARY_A</span>
-          <span className="text-chrono-cyan">STATUS: {state}</span>
+        
+        <div className="flex items-center gap-8">
+           <div className="flex flex-col items-end">
+              <span className="text-[10px] font-black text-white/40 uppercase">System Status</span>
+              <span className="text-xs font-bold text-chrono-cyan animate-pulse">{state}</span>
+           </div>
+           <button onClick={() => window.location.reload()} className="p-2 border border-white/10 rounded-lg hover:bg-white/5 transition-all text-white/50 hover:text-white">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 8.967 8.967 0 01-18 0z" /></svg>
+           </button>
         </div>
       </header>
 
-      <div className="flex-1 p-6 flex gap-6 overflow-hidden">
-        {/* Left Side: Controls & Lore */}
-        <aside className="w-[400px] flex flex-col gap-6">
-          <div className="chrome-container p-6 rounded-xl flex-shrink-0">
-            <h2 className="text-xs font-bold text-white/50 mb-4 uppercase tracking-widest">Temporal Input</h2>
+      <div className="flex-1 p-8 flex gap-8 overflow-hidden relative z-10">
+        {/* Primary Data Column */}
+        <aside className="w-[450px] flex flex-col gap-6">
+          <div className="bg-black/40 border border-white/10 p-8 rounded-2xl backdrop-blur-xl flex-shrink-0 relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-2 text-[8px] font-bold text-white/10">01_INPUT_MODULE</div>
+            <h2 className="text-xs font-black text-white uppercase tracking-widest mb-6 border-l-2 border-chrono-cyan pl-3">Temporal Signature</h2>
             <TerminalInput onSubmit={(url) => reconstruct(url, apiKey)} />
           </div>
           
-          <div className="chrome-container p-6 rounded-xl flex-1 overflow-y-auto scrollbar-hide">
-            <h2 className="text-xs font-bold text-white/50 mb-4 uppercase tracking-widest">Reconstruction Data</h2>
-            {lore ? <ArtifactScanner lore={lore} /> : (
-              <div className="h-full flex items-center justify-center text-chrono-cyan/20 italic text-sm">
-                Awaiting artifact signature...
-              </div>
-            )}
+          <div className="bg-black/40 border border-white/10 rounded-2xl backdrop-blur-xl flex-1 overflow-hidden flex flex-col relative">
+            <div className="absolute top-0 right-0 p-2 text-[8px] font-bold text-white/10">02_RESTORED_LORE</div>
+            <div className="p-8 border-b border-white/10">
+              <h2 className="text-xs font-black text-white uppercase tracking-widest border-l-2 border-chrono-cyan pl-3">Chronicle Output</h2>
+            </div>
+            <div className="flex-1 overflow-y-auto p-8 scrollbar-hide bg-gradient-to-b from-transparent to-chrono-cyan/5">
+              {lore ? <ArtifactScanner lore={lore} /> : (
+                <div className="h-full flex flex-col items-center justify-center opacity-20 gap-4">
+                  <div className="w-12 h-12 border border-chrono-cyan/40 rounded-full animate-ping" />
+                  <p className="font-mono text-[10px] tracking-widest">AWAITING SEQUENCE...</p>
+                </div>
+              )}
+            </div>
           </div>
         </aside>
 
-        {/* Right Side: Main Viewport */}
-        <section className="flex-1 flex flex-col gap-6 overflow-hidden">
-          <div className="flex-1 flex items-center justify-center min-h-0">
+        {/* Cinematic Viewport Column */}
+        <section className="flex-1 flex flex-col gap-8">
+          <div className="flex-1 flex items-center justify-center relative bg-black/20 rounded-3xl border border-white/5 overflow-hidden">
+             {/* Visual "Targeting" corner marks inside the viewport */}
+             <div className="absolute top-6 left-6 w-10 h-10 border-t border-l border-white/20" />
+             <div className="absolute top-6 right-6 w-10 h-10 border-t border-r border-white/20" />
+             <div className="absolute bottom-6 left-6 w-10 h-10 border-b border-l border-white/20" />
+             <div className="absolute bottom-6 right-6 w-10 h-10 border-b border-r border-white/20" />
+             
              <ChronoDisplay state={state} imageUrl={imageUrl} videoUrl={videoUrl} />
           </div>
 
-          <div className="h-48 chrome-container p-6 rounded-xl flex items-center justify-center">
+          <div className="h-40 bg-black/40 border border-white/10 p-8 rounded-2xl backdrop-blur-xl flex items-center justify-center relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-white/5" />
              {state === 'COMPLETE' ? (
                <StoryBranching chronoPaths={chronoPaths} onExport={() => {}} />
              ) : (
-               <div className="text-chrono-cyan/40 font-mono text-xs animate-pulse">
-                  SYSTEM MONITOR: IDLE... WAITING FOR DECODING SEQUENCE...
+               <div className="flex gap-4 items-center">
+                  <div className="w-2 h-2 rounded-full bg-chrono-cyan animate-bounce" />
+                  <div className="text-[10px] font-black tracking-[0.4em] uppercase opacity-40">Timeline Sync Module Idle</div>
                </div>
              )}
           </div>
         </section>
       </div>
-
-      {/* Error Overlays */}
-      {error && (
-        <div className="fixed inset-0 bg-red-900/20 backdrop-blur-md flex items-center justify-center z-[100]">
-          <div className="bg-black border-2 border-red-500 p-8 rounded-xl max-w-md text-center">
-            <h2 className="text-2xl font-black text-red-500 mb-4">CRITICAL SYSTEM ERROR</h2>
-            <p className="text-red-400 mb-6">{error}</p>
-            <button onClick={reset} className="px-8 py-3 bg-red-500 text-black font-bold rounded-lg hover:bg-red-400">
-              REBOOT SYSTEM
-            </button>
-          </div>
-        </div>
-      )}
     </main>
   );
 }
-
