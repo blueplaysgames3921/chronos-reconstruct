@@ -1,40 +1,25 @@
+
 'use client';
 
-import { motion } from 'framer-motion';
-
-interface Path {
-  id: string;
-  title: string;
+interface StoryBranchingProps {
+  chronoPaths: string[];
+  onExport: () => void;
 }
 
-export function StoryBranching({ paths }: { paths: Path[] }) {
-  const handleExport = () => {
-    // Logic to call the /api/export endpoint
-  };
-
+export const StoryBranching = ({ chronoPaths, onExport }: StoryBranchingProps) => {
   return (
-    <div className="w-full max-w-2xl mx-auto p-4 border border-cyan-500 rounded-lg">
-      <h3 className="text-cyan-500 text-lg font-bold mb-4 text-center">Chrono-Paths Detected</h3>
-      <div className="flex justify-around items-center">
-        {paths.map((path) => (
-          <motion.button
-            key={path.id}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            className="px-4 py-2 bg-cyan-500 text-void font-bold rounded-md glow-expansion"
-          >
-            {path.title}
-          </motion.button>
+    <div className="w-full max-w-2xl mx-auto mt-8">
+      <h3 className="text-xl font-bold text-center text-emerald-500 mb-4">TIMELINE ANALYSIS COMPLETE</h3>
+      <div className="flex flex-col gap-4">
+        {chronoPaths.map((path, index) => (
+          <button key={index} className="px-4 py-3 bg-void border border-emerald-500 text-emerald-500 font-bold rounded-md glow-expansion">
+            {path}
+          </button>
         ))}
-         <motion.button
-            onClick={handleExport}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            className="px-4 py-2 bg-emerald-500 text-void font-bold rounded-md glow-expansion"
-          >
-            Export Time Capsule
-          </motion.button>
+         <button onClick={onExport} className="mt-4 px-4 py-3 bg-emerald-500 text-void font-bold rounded-md glow-expansion">
+          Export Time-Capsule
+        </button>
       </div>
     </div>
   );
-}
+};

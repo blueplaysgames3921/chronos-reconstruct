@@ -1,9 +1,14 @@
-import '../styles/globals.css';
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import { LabBackground } from '@/components/LabBackground';
 
-const inter = Inter({ subsets: ['latin'] });
+import type { Metadata } from 'next';
+import { IBM_Plex_Mono } from 'next/font/google';
+import '../styles/globals.css';
+import LabBackground from '@/components/LabBackground';
+
+const mono = IBM_Plex_Mono({ 
+  subsets: ['latin'],
+  weight: ['400', '700'],
+  variable: '--font-mono',
+});
 
 export const metadata: Metadata = {
   title: 'Project Chronos',
@@ -12,12 +17,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: {
-  children: React.ReactNode;
+}: { 
+  children: React.ReactNode 
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} scanline bg-void`}>
+      <body className={`${mono.variable} font-mono`}>
         <LabBackground />
         {children}
       </body>

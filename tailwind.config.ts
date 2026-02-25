@@ -1,3 +1,4 @@
+
 import type { Config } from 'tailwindcss';
 
 const config: Config = {
@@ -9,24 +10,36 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        void: '#0D0D0D',
+        void: '#050505',
+        emerald: {
+          500: '#10b981',
+        },
+        amber: {
+          500: '#f59e0b',
+        },
+        red: {
+          600: '#dc2626',
+        },
+        cyan: {
+          DEFAULT: '#06b6d4',
+        },
       },
-      boxShadow: {
-        glow: '0 0 10px rgba(50, 255, 50, 0.8)',
+      fontFamily: {
+        mono: ['var(--font-mono)'],
       },
       keyframes: {
         flicker: {
           '0%, 100%': { opacity: '1' },
           '50%': { opacity: '0.8' },
         },
-        scan: {
-          '0%': { transform: 'translateY(-100%)' },
-          '100%': { transform: 'translateY(100%)' },
-        },
+        'glow-expansion': {
+            '0%, 100%': { boxShadow: '0 0 2px 0px rgba(16, 185, 129, 0.7)' },
+            '50%': { boxShadow: '0 0 10px 3px rgba(16, 185, 129, 0.5)' },
+        }
       },
       animation: {
-        'crt-flicker': 'flicker 1.5s infinite',
-        scan: 'scan 3s linear infinite',
+        flicker: 'flicker 1.5s infinite',
+        'glow-expansion': 'glow-expansion 1.5s ease-in-out infinite',
       },
     },
   },

@@ -1,37 +1,47 @@
+
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-export function KeySetup({ onApiKeySet }: { onApiKeySet: (key: string) => void }) {
-  const [key, setKey] = useState('');
+interface KeySetupProps {
+  onApiKeySet: (apiKey: string) => void;
+}
+
+export const KeySetup = ({ onApiKeySet }: KeySetupProps) => {
+  const [apiKey, setApiKey] = useState('');
+
+  useEffect(() => {
+    const storedKey = localStorage.getItem('pollinations_api_key');
+    if (storedKey) {
+      onApiKeySet(storedKey);
+    }
+  }, [onApiKeySet]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onApiKeySet(key);
+    if (apiKey) {
+      localStorage.setItem('pollinations_api_key', apiKey);
+      onApiKeySet(apiKey);
+    }
   };
 
   return (
     <div className="fixed inset-0 bg-void bg-opacity-90 flex items-center justify-center z-50">
-      <div className="w-full max-w-md p-8 border border-red-600 rounded-lg text-center">
-        <h2 className="text-2xl text-red-600 font-bold mb-4">Authorization Required</h2>
-        <p className="text-white mb-6">A valid Pollinations API Key is required to proceed.</p>
-        <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
+      <div className="border border-amber-500 p-8 rounded-lg text-center">
+        <h2 className="text-2xl font-bold mb-4">AUTHENTICATION REQUIRED</h2>
+        <p className="mb-4">Enter your Pollinations API Key to proceed.</p>
+        <form onSubmit={handleSubmit}>
           <input
             type="password"
-            value={key}
-            onChange={(e) => setKey(e.target.value)}
-            className="w-full bg-void border border-red-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-red-600"
-            placeholder="Enter API Key"
-            required
+            value={apiKey}
+            onChange={(e) => setApiKey(e.target.value)}
+            className="w-full bg-void border border-amber-500 rounded-md px-3 py-2 mb-4 text-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500"
           />
-          <button
-            type="submit"
-            className="px-4 py-2 bg-red-600 text-void font-bold rounded-md glow-expansion"
-          >
+          <button type="submit" className="px-4 py-2 bg-amber-500 text-void font-bold rounded-md glow-expansion">
             Authorize
           </button>
         </form>
       </div>
     </div>
   );
-}
+};

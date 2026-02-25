@@ -1,22 +1,38 @@
-const API_URL = 'https://pollinations.ai/p';
 
-async function post(endpoint: string, body: any, apiKey: string) {
-  const response = await fetch(`${API_URL}${endpoint}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify(body),
-  });
+import { POLLINATIONS_MODELS } from './constants';
 
-  if (!response.ok) {
-    throw new Error(`Pollinations API error: ${response.statusText}`);
+const POLLINATIONS_API_URL = "https://api.pollinations.ai/v2";
+
+export class Pollinations {
+  private apiKey: string;
+
+  constructor(apiKey: string) {
+    this.apiKey = apiKey;
   }
 
-  return response.json();
-}
+  async dispatch(prompt: string, data: Record<string, any>): Promise<any> {
+    let model = POLLINATIONS_MODELS.FLUX;
+    if (prompt.includes('Analyze') || prompt.includes('Report')) {
+        model = POLLINATIONS_MODELS.VISION;
+    } else if (prompt.includes('Animate')) {
+        model = POLLINATIONS_MODELS.SVD;
+    }
 
-export const pollinations = {
-  post,
-};
+    const response = await fetch(`${POLLINATIONS_API_URL}/dispatch/${model}`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.apiKey}`,
+      },
+      body: JSON.stringify({ prompt, ...data }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Pollinations API error: ${response.status} ${errorText}`);
+    }
+
+    return response.json();
+  }
+}

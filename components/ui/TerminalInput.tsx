@@ -1,45 +1,37 @@
+
 'use client';
 
 import { useState } from 'react';
-import { motion } from 'framer-motion';
 
-export function TerminalInput({ onSubmit }: { onSubmit: (url: string) => void }) {
+interface TerminalInputProps {
+  onSubmit: (url: string) => void;
+}
+
+export const TerminalInput = ({ onSubmit }: TerminalInputProps) => {
   const [url, setUrl] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(url);
+    if (url) {
+      onSubmit(url);
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col items-center space-y-4">
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-lg"
-      >
-        <label htmlFor="artifact-url" className="block text-emerald-500 mb-2">
-          Enter Artifact URL:
-        </label>
+    <form onSubmit={handleSubmit} className="w-full max-w-2xl mx-auto">
+      <div className="flex items-center border border-emerald-500 rounded-md p-2">
+        <span className="text-emerald-500 mr-2">{`>_`}</span>
         <input
-          id="artifact-url"
-          type="url"
+          type="text"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
-          className="w-full bg-void border border-emerald-500 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-          placeholder="https://..."
-          required
+          placeholder="Enter Artifact Image URL..."
+          className="w-full bg-transparent text-emerald-500 placeholder-emerald-500/50 focus:outline-none"
         />
-      </motion.div>
-      <motion.button
-        type="submit"
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        className="px-4 py-2 bg-emerald-500 text-void font-bold rounded-md glow-expansion"
-      >
-        Initiate Scan
-      </motion.button>
+        <button type="submit" className="ml-4 px-4 py-2 bg-emerald-500 text-void font-bold rounded-md glow-expansion">
+          Reconstruct
+        </button>
+      </div>
     </form>
   );
-}
+};
