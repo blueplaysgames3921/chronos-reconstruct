@@ -1,7 +1,7 @@
 
 import type { Metadata } from 'next';
 import { IBM_Plex_Mono } from 'next/font/google';
-import '../styles/globals.css';
+import './globals.css';
 import LabBackground from '@/components/LabBackground';
 
 const mono = IBM_Plex_Mono({ 
