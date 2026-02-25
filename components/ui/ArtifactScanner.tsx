@@ -1,4 +1,3 @@
-
 'use client';
 
 import { motion, Variants } from 'framer-motion';
@@ -8,13 +7,14 @@ interface ArtifactScannerProps {
 }
 
 export const ArtifactScanner = ({ lore }: ArtifactScannerProps) => {
-  const words = lore.split(' ');
-  const container = {
+  const words = lore ? lore.split(' ') : [];
+  
+  const container: Variants = {
     hidden: { opacity: 0 },
-    visible: (i = 1) => ({
+    visible: {
       opacity: 1,
-      transition: { staggerChildren: 0.03, delayChildren: 0.04 * i },
-    }),
+      transition: { staggerChildren: 0.03, delayChildren: 0.04 },
+    },
   };
 
   const child: Variants = {
@@ -30,11 +30,6 @@ export const ArtifactScanner = ({ lore }: ArtifactScannerProps) => {
     hidden: {
       opacity: 0,
       x: 20,
-      transition: {
-        type: 'spring',
-        damping: 12,
-        stiffness: 100,
-      },
     },
   };
 
@@ -46,11 +41,13 @@ export const ArtifactScanner = ({ lore }: ArtifactScannerProps) => {
       animate="visible"
     >
       <div className="absolute top-2 right-4 text-xs text-cyan-glow/50">STATUS: RECONSTRUCTING</div>
-      {words.map((word, index) => (
-        <motion.span key={index} variants={child} style={{ marginRight: '5px' }}>
-          {word}
-        </motion.span>
-      ))}
+      <div className="flex flex-wrap">
+        {words.map((word, index) => (
+          <motion.span key={`${word}-${index}`} variants={child} className="mr-1.5">
+            {word}
+          </motion.span>
+        ))}
+      </div>
     </motion.div>
   );
 };
