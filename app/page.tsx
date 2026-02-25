@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 import { useChronos } from '@/hooks/useChronos';
 import { SecureTerminal } from '@/components/ui/SecureTerminal';
 import { TerminalInput } from '@/components/ui/TerminalInput';
