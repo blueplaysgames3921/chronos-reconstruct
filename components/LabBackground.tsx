@@ -1,9 +1,9 @@
-
 const LabBackground = () => {
   return (
-    <div className="fixed top-0 left-0 w-full h-full -z-10 overflow-hidden">
-      <div className="absolute top-0 left-0 w-full h-full bg-grid -z-20"></div>
-      <div className="absolute top-0 left-0 w-full h-full scanline-overlay -z-10"></div>
+    <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+      <div className="absolute inset-0 cyber-grid opacity-20" />
+      <div className="absolute inset-0 scanline-overlay" />
+      <div className="absolute inset-0 bg-radial-at-t from-cyan-glow/5 to-transparent" />
     </div>
   );
 };
