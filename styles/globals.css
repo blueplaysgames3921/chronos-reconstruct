@@ -1,13 +1,7 @@
-@import "tailwindcss";
-
-@theme {
-  --color-void: #0E0B1A;
-}
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-body {
-  @apply bg-void;
+.bg-void {
+  background-color: #0E0B1A;
 }
