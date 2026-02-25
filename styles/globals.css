@@ -4,58 +4,18 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --background: 0 0% 2%; /* #050505 */
-    --foreground: 210 40% 98%;
-    --primary: 142.1 76.2% 41%; /* emerald-500 */
-    --primary-foreground: 142.1 76.2% 31%;
-    --destructive: 0 84.2% 60.2%; /* red-600 */
-    --warning: 38.8 92.3% 50.8%; /* amber-500 */
+  body {
+    @apply bg-void text-cyan-glow font-mono;
   }
 }
 
-body {
-  background-color: hsl(var(--background));
-  color: hsl(var(--foreground));
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  overflow: hidden;
+.cyber-grid {
+  background-image:
+    linear-gradient(to right, rgba(0, 242, 255, 0.1) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 242, 255, 0.1) 1px, transparent 1px);
+  background-size: 40px 40px;
 }
 
-body::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: linear-gradient(to bottom, rgba(16, 185, 129, 0.1) 1px, transparent 1px);
-  background-size: 1px 4px;
-  animation: flicker 0.15s infinite;
-  pointer-events: none;
-  z-index: 100;
-  opacity: 0.4;
-}
-
-body::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: 
-        linear-gradient(rgba(16, 185, 129, 0.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(16, 185, 129, 0.05) 1px, transparent 1px);
-    background-size: 2em 2em;
-    pointer-events: none;
-    z-index: -1;
-}
-
-@keyframes flicker {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 0.6; }
-}
-
-.glow-expansion {
-    animation: glow-expansion 1.5s ease-in-out infinite;
+.live-pulse {
+  @apply absolute top-0 left-0 right-0 h-1 bg-cyan-glow/50 animate-pulse;
 }

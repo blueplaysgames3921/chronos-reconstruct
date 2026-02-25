@@ -12,26 +12,65 @@ interface ChronoDisplayProps {
 export const ChronoDisplay = ({ imageUrl, videoUrl, state }: ChronoDisplayProps) => {
   const isVisible = state === 'RECONSTRUCTING' || state === 'ANIMATING' || state === 'COMPLETE';
 
+  const contentVariants = {
+    hidden: { 
+        opacity: 0, 
+        y: 20,
+        filter: 'blur(10px)',
+        scale: 1.1
+    },
+    visible: {
+      opacity: 1,
+      y: 0,
+      filter: 'blur(0px)',
+      scale: 1,
+      transition: { 
+          duration: 0.8, 
+          ease: [0.6, -0.05, 0.01, 0.99]
+      },
+    },
+    exit: {
+        opacity: 0,
+        y: -20,
+        filter: 'blur(10px)',
+        scale: 0.9
+    }
+  };
+
   return (
-    <div className="w-full max-w-4xl h-96 flex items-center justify-center border-2 border-cyan-500/30 rounded-lg p-4 bg-black bg-opacity-20">
+    <div className="w-full max-w-4xl h-96 flex items-center justify-center border border-cyan-border rounded-lg p-4 bg-black/30 backdrop-blur-xl">
       <AnimatePresence>
         {isVisible && imageUrl && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
+            key="chrono-display"
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            variants={{ visible: { transition: { staggerChildren: 0.3 } } }}
             className="w-full h-full"
           >
             {state === 'COMPLETE' && videoUrl ? (
-              <video src={videoUrl} autoPlay loop muted className="w-full h-full object-contain" />
+              <motion.video 
+                src={videoUrl} 
+                autoPlay 
+                loop 
+                muted 
+                className="w-full h-full object-contain" 
+                variants={contentVariants}
+              />
             ) : (
-              <img src={imageUrl} alt="Reconstructed Artifact" className="w-full h-full object-contain" />
+              <motion.img 
+                src={imageUrl} 
+                alt="Reconstructed Artifact" 
+                className="w-full h-full object-contain"
+                variants={contentVariants}
+              />
             )}
           </motion.div>
         )}
       </AnimatePresence>
       {!isVisible && (
-        <div className="text-center text-cyan-500/50">
+        <div className="text-center text-cyan-glow/50">
           <p>Awaiting Artifact...</p>
         </div>
       )}

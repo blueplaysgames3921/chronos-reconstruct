@@ -40,11 +40,12 @@ export const ArtifactScanner = ({ lore }: ArtifactScannerProps) => {
 
   return (
     <motion.div
-      className="w-full max-w-2xl p-4 border border-amber-500 rounded-lg text-amber-500"
+      className="w-full max-w-2xl p-4 border border-cyan-border rounded-lg text-cyan-glow bg-black/30 backdrop-blur-xl relative"
       variants={container}
       initial="hidden"
       animate="visible"
     >
+      <div className="absolute top-2 right-4 text-xs text-cyan-glow/50">STATUS: RECONSTRUCTING</div>
       {words.map((word, index) => (
         <motion.span key={index} variants={child} style={{ marginRight: '5px' }}>
           {word}
