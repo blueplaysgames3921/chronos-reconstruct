@@ -1,7 +1,7 @@
 
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 
 interface ArtifactScannerProps {
   lore: string;
@@ -17,7 +17,7 @@ export const ArtifactScanner = ({ lore }: ArtifactScannerProps) => {
     }),
   };
 
-  const child = {
+  const child: Variants = {
     visible: {
       opacity: 1,
       x: 0,
