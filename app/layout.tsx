@@ -17,7 +17,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} scanline`}>
+      <body className={`${inter.className} scanline bg-void`}>
         <LabBackground />
         {children}
       </body>
