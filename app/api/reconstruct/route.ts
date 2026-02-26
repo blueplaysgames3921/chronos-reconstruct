@@ -15,15 +15,17 @@ export async function POST(request: Request) {
 
     const pollinations = new Pollinations(apiKey);
 
-    // Stage 1: Analyze Artifact Lore (Vision)
+    // Stage 1: Analyze Artifact Lore (Gemini-Fast)
     const visionResponse = await pollinations.dispatch(SCIENTIFIC_RESTORATION_REPORT_PROMPT, { image: imageUrl });
-    const lore = visionResponse.output;
+    
+    // REGEX FIX: Remove Markdown code blocks if Gemini returns them
+    let lore = visionResponse.output.replace(/```json|```markdown|```/g, "").trim();
 
     if (!lore) {
       throw new Error("Vision analysis returned null output");
     }
 
-    // Stage 2: Reconstruct Image via Flux
+    // Stage 2: Reconstruct Image (Flux)
     const fluxPrompt = FLUX_PROMPT(lore);
     const fluxResponse = await pollinations.dispatch(fluxPrompt, {});
     const reconstructedImageUrl = fluxResponse.output;
@@ -38,7 +40,6 @@ export async function POST(request: Request) {
       "[DIVERGE] Explore the alternative timeline this artifact suggests.",
     ];
 
-    // Note: Video generation has been decoupled to avoid Vercel timeouts.
     return NextResponse.json({
       lore,
       reconstructedImageUrl,
