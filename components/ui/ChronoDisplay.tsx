@@ -10,16 +10,30 @@ interface ChronoDisplayProps {
 
 export const ChronoDisplay = ({ imageUrl, videoUrl, state }: ChronoDisplayProps) => {
   const [isMediaReady, setIsMediaReady] = useState(false);
+  const [retryKey, setRetryKey] = useState(0);
   const isVisible = state !== 'IDLE' && state !== 'ERROR';
 
   useEffect(() => {
     if (imageUrl || videoUrl) {
       setIsMediaReady(false);
-      // Hard fallback if the browser doesn't fire load events
-      const timer = setTimeout(() => setIsMediaReady(true), 6000);
+      
+      // Hard fallback: Bypasses 10s limits. We wait 25s for Pollinations to "cook" the image/video.
+      const timer = setTimeout(() => {
+        setIsMediaReady(true);
+      }, 25000);
+
       return () => clearTimeout(timer);
     }
-  }, [imageUrl, videoUrl]);
+  }, [imageUrl, videoUrl, retryKey]);
+
+  // Handle errors (like 404 while generating) by bumping a retry key to refresh the src
+  const handleMediaError = () => {
+    if (retryKey < 3) {
+      setTimeout(() => setRetryKey(prev => prev + 1), 5000);
+    } else {
+      setIsMediaReady(true); // Stop loading loop and show broken icon or whatever is there
+    }
+  };
 
   return (
     <motion.div
@@ -31,8 +45,8 @@ export const ChronoDisplay = ({ imageUrl, videoUrl, state }: ChronoDisplayProps)
 
       <div className="w-full h-full rounded-xl bg-black/90 flex items-center justify-center relative overflow-hidden">
         
-        {/* Loading Overlay - Only visible if scanning or if URL exists but media isn't ready */}
-        {(state === 'SCANNING' || (imageUrl && !isMediaReady)) && (
+        {/* Loading Overlay */}
+        {(state !== 'IDLE' && state !== 'COMPLETE' && state !== 'ERROR' || (imageUrl && !isMediaReady)) && (
           <div className="absolute inset-0 z-40 flex flex-col items-center justify-center bg-void/80 backdrop-blur-md">
             <div className="relative w-32 h-32 mb-8">
                <svg className="w-full h-full animate-spin" viewBox="0 0 100 100">
@@ -44,13 +58,16 @@ export const ChronoDisplay = ({ imageUrl, videoUrl, state }: ChronoDisplayProps)
                </div>
             </div>
             <p className="text-2xl font-black italic tracking-[0.5em] digital-fire-text">RE-SYNCING REALITY</p>
+            <p className="text-[10px] font-mono text-chrono-cyan/40 mt-4 uppercase tracking-[0.2em]">
+                Status: {state} {retryKey > 0 ? `(Attempt ${retryKey})` : ''}
+            </p>
           </div>
         )}
 
         <AnimatePresence mode="wait">
           {imageUrl && (
             <motion.div
-              key={videoUrl || imageUrl}
+              key={`${videoUrl || imageUrl}-${retryKey}`}
               initial={{ filter: 'blur(40px) brightness(0)', scale: 1.1 }}
               animate={isMediaReady ? { filter: 'blur(0px) brightness(1)', scale: 1 } : { filter: 'blur(40px) brightness(0)', scale: 1.1 }}
               exit={{ opacity: 0 }}
@@ -58,18 +75,20 @@ export const ChronoDisplay = ({ imageUrl, videoUrl, state }: ChronoDisplayProps)
               className="w-full h-full flex items-center justify-center rainbow-blast"
             >
               {videoUrl ? (
-                <video 
-                  src={videoUrl} 
-                  autoPlay loop muted playsInline 
+                <video
+                  src={`${videoUrl}&cache=${retryKey}`}
+                  autoPlay loop muted playsInline
                   onLoadedData={() => setIsMediaReady(true)}
-                  className="w-full h-full object-cover" 
+                  onError={handleMediaError}
+                  className="w-full h-full object-cover"
                 />
               ) : (
-                <img 
-                  src={imageUrl} 
-                  alt="Artifact" 
+                <img
+                  src={`${imageUrl}&cache=${retryKey}`}
+                  alt="Artifact"
                   onLoad={() => setIsMediaReady(true)}
-                  className="w-full h-full object-contain p-4 drop-shadow-[0_0_30px_rgba(0,242,255,0.5)]" 
+                  onError={handleMediaError}
+                  className="w-full h-full object-contain p-4 drop-shadow-[0_0_30px_rgba(0,242,255,0.5)]"
                 />
               )}
             </motion.div>
