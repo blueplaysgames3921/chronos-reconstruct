@@ -15,6 +15,7 @@ export class Pollinations {
 
     try {
       if (isTextTask) {
+        // TEXT TASK: Uses POST (Already working as you confirmed)
         const response = await fetch(`${BASE_URL}/v1/chat/completions`, {
           method: 'POST',
           headers: {
@@ -36,15 +37,16 @@ export class Pollinations {
           })
         });
 
-        if (!response.ok) throw new Error(`AI Gateway Error: ${response.statusText}`);
+        if (!response.ok) throw new Error(`Text API Error: ${response.statusText}`);
 
         const result = await response.json();
         return { output: result.choices[0]?.message?.content || "" };
 
       } else {
+        // IMAGE/VIDEO TASK: Uses GET (The logic you caught)
         const model = isVideoTask ? 'grok-video' : 'flux';
 
-        // Clean prompt but keep enough detail for high quality
+        // Clean prompt for URL safety
         const cleanPrompt = prompt
           .replace(/[^a-zA-Z0-9\s]/g, '')
           .split(' ')
@@ -54,13 +56,29 @@ export class Pollinations {
         const encodedPrompt = encodeURIComponent(cleanPrompt);
         const seed = data.seed || Math.floor(Math.random() * 100000);
 
-        // We use the full URL format. 
-        // Note: For grok-video, the system expects the URL to be accessed.
-        const outputUrl = `${BASE_URL}/image/${encodedPrompt}?model=${model}&seed=${seed}&width=1024&height=1024&nologo=true&nofeed=true`;
+        // Construct the full URL
+        const requestUrl = `${BASE_URL}/image/${encodedPrompt}?model=${model}&seed=${seed}&width=1024&height=1024&nologo=true&nofeed=true`;
 
-        return { output: outputUrl };
+        // THE FIX: We MUST fetch the URL to send the Authorization header
+        const response = await fetch(requestUrl, {
+          method: 'GET',
+          headers: {
+            'Accept': isVideoTask ? 'video/mp4' : 'image/jpeg, image/png',
+            'Authorization': `Bearer ${this.apiKey}`
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`Media Generation Error: ${response.status} ${response.statusText}`);
+        }
+
+        // Pollinations returns the generated media directly. 
+        // We return the URL so the UI can display it, but the fetch above 
+        // ensures the generation process is actually authorized and triggered.
+        return { output: response.url };
       }
     } catch (error: any) {
+      console.error("Pollinations Dispatch Error:", error.message);
       throw new Error(`Pollinations API Error: ${error.message}`);
     }
   }
