@@ -18,7 +18,6 @@ export const useChronos = () => {
     setLore('');
 
     try {
-      // Step 1: Reconstruct Image and Lore
       const response = await fetch('/api/reconstruct', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -31,15 +30,12 @@ export const useChronos = () => {
       }
 
       const data = await response.json();
-      
-      // Update data immediately to trigger image load
       setLore(data.lore);
       setImageUrl(data.reconstructedImageUrl);
       setChronoPaths(data.chronoPaths);
       
       setState('ANIMATING');
 
-      // Step 2: Attempt Video generation
       try {
         const videoResponse = await fetch('/api/animate', {
             method: 'POST',
@@ -49,19 +45,38 @@ export const useChronos = () => {
 
         if (videoResponse.ok) {
             const videoData = await videoResponse.json();
-            if (videoData.videoUrl) {
-                setVideoUrl(videoData.videoUrl);
-            }
+            setVideoUrl(videoData.videoUrl);
         }
       } catch (videoErr) {
-        console.warn('Video stream interrupted, remaining on static frame.');
+        console.warn('Video phase failed, keeping static.');
       }
 
       setState('COMPLETE');
-
     } catch (err: any) {
       setError(err.message);
       setState('ERROR');
+    }
+  };
+
+  const exportCapsule = async () => {
+    if (!lore || !imageUrl) return;
+    try {
+      const response = await fetch('/api/export', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lore, imageUrl, videoUrl })
+      });
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `chronos-capsule.html`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Export Error:', err);
     }
   };
 
@@ -74,5 +89,5 @@ export const useChronos = () => {
     setError(null);
   };
 
-  return { state, lore, imageUrl, videoUrl, chronoPaths, error, reconstruct, reset };
+  return { state, lore, imageUrl, videoUrl, chronoPaths, error, reconstruct, exportCapsule, reset };
 };
