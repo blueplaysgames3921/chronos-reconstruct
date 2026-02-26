@@ -15,7 +15,6 @@ export class Pollinations {
 
     try {
       if (isTextTask) {
-        // Full Gemini-Fast Vision/Text implementation
         const response = await fetch(`${BASE_URL}/v1/chat/completions`, {
           method: 'POST',
           headers: {
@@ -38,25 +37,23 @@ export class Pollinations {
         });
 
         const result = await response.json();
-        const content = result.choices[0]?.message?.content || "";
-        return { output: content };
+        return { output: result.choices[0]?.message?.content || "" };
 
       } else {
-        // Image (Flux) or Video (Grok-Video) implementation
         const model = isVideoTask ? 'grok-video' : 'flux';
         
-        // STRICTURE: We sanitize the prompt to ensure no special characters break the GET URL
+        // Remove characters that break URL parsing in many browsers
         const cleanPrompt = prompt
-          .replace(/[^a-zA-Z0-9\s,.-]/g, '')
+          .replace(/[^a-zA-Z0-9\s]/g, '')
           .split(' ')
-          .slice(0, 70) 
+          .slice(0, 60)
           .join(' ');
 
         const encodedPrompt = encodeURIComponent(cleanPrompt);
         const seed = data.seed || Math.floor(Math.random() * 100000);
 
-        // Standardized GET format for Pollinations Gen endpoint
-        const outputUrl = `${BASE_URL}/image/${encodedPrompt}?model=${model}&seed=${seed}&width=1024&height=1024&nologo=true&enhance=false`;
+        // Standardized format: nologo and no-cache ensure fresh delivery
+        const outputUrl = `${BASE_URL}/image/${encodedPrompt}?model=${model}&seed=${seed}&width=1024&height=1024&nologo=true&nofeed=true`;
 
         return { output: outputUrl };
       }
