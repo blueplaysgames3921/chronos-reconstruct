@@ -22,17 +22,17 @@ export const useChronos = () => {
     const pollinations = new Pollinations(apiKey);
 
     try {
-      // Stage 1: Analyze via Browser (CORS allows this)
+      // Stage 1: Analyze via Browser
       setState('RECONSTRUCTING');
       const visionResponse = await pollinations.dispatch(SCIENTIFIC_RESTORATION_REPORT_PROMPT, { image: sourceImageUrl });
-      
+
       let cleanLore = visionResponse.output
         .replace(/```[a-z]*\n?|```/g, "")
         .replace(/["'{}[\]]/g, "")
         .trim();
-
-      if (!cleanLore) throw new Error("Timeline analysis failed to return data.");
-
+                                                                           
+      if (!cleanLore) throw new Error("Timeline analysis failed to return data."); 
+      
       setLore(cleanLore);
       setChronoPaths([
         "[STABILIZE] Archive this timeline.",
@@ -43,23 +43,28 @@ export const useChronos = () => {
       // Stage 2: Generate Reconstruction URL
       const fluxPrompt = FLUX_PROMPT(cleanLore);
       const fluxResponse = await pollinations.dispatch(fluxPrompt, {});
+      
+      if (!fluxResponse.output) throw new Error("Image reconstruction failed.");
       setImageUrl(fluxResponse.output);
-
-      setState('ANIMATING');
-
+                                                                                 
       // Stage 3: Generate Animation URL
-      try {
-        const videoResponse = await pollinations.dispatch(
-          "Cinematic temporal animation, slow movement, historical restoration",
-          { image: fluxResponse.output }
-        );
+      setState('ANIMATING');
+      const videoResponse = await pollinations.dispatch(
+        "Cinematic temporal animation, slow movement, historical restoration, high definition",
+        { image: fluxResponse.output, model: 'grok-video' }
+      );
+
+      if (videoResponse.output) {
         setVideoUrl(videoResponse.output);
-      } catch (videoErr) {
-        console.warn('Animation phase skipped due to latency.');
+      } else {
+        console.warn("Video URL not generated, falling back to image.");
       }
 
+      // Final Transition
       setState('COMPLETE');
+
     } catch (err: any) {
+      console.error("Reconstruction Error:", err);
       setError(err.message);
       setState('ERROR');
     }
