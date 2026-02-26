@@ -10,47 +10,41 @@ export async function POST(request: Request) {
     const { imageUrl, apiKey } = body;
 
     if (!imageUrl || !apiKey) {
-      return NextResponse.json({ error: 'Missing Credentials or Image' }, { status: 400 });
+      return NextResponse.json({ error: 'Auth Required' }, { status: 400 });
     }
 
     const pollinations = new Pollinations(apiKey);
 
-    // Stage 1: Analyze Artifact Lore (Gemini-Fast Vision)
+    // Stage 1: Gemini Vision Analysis
     const visionResponse = await pollinations.dispatch(SCIENTIFIC_RESTORATION_REPORT_PROMPT, { image: imageUrl });
     
-    // REGEX: Strip Markdown code blocks (e.g., ```json) that Gemini often adds
-    let lore = visionResponse.output.replace(/```[a-z]*\n?|```/g, "").trim();
+    // Clean potential LLM artifacts
+    let lore = visionResponse.output
+      .replace(/```[a-z]*\n?|```/g, "")
+      .replace(/["'{}[\]]/g, "")
+      .trim();
 
-    if (!lore) {
-      throw new Error("Vision analysis returned null output");
-    }
+    if (!lore) throw new Error("Vision stage failed");
 
-    // Stage 2: Reconstruct Image (Flux)
+    // Stage 2: Flux Image Reconstruction
     const fluxPrompt = FLUX_PROMPT(lore);
     const fluxResponse = await pollinations.dispatch(fluxPrompt, {});
     const reconstructedImageUrl = fluxResponse.output;
 
-    if (!reconstructedImageUrl) {
-        throw new Error("Flux reconstruction failed");
-    }
-
-    const chronoPaths = [
-      "[STABILIZE] Reinforce the current timeline continuity.",
-      "[REDACT] Classify the artifact as a temporal anomaly and seal.",
-      "[DIVERGE] Explore the alternative timeline this artifact suggests.",
-    ];
+    if (!reconstructedImageUrl) throw new Error("Flux stage failed");
 
     return NextResponse.json({
       lore,
       reconstructedImageUrl,
-      chronoPaths,
+      chronoPaths: [
+        "[STABILIZE] Archive this timeline.",
+        "[REDACT] Classify as Anomaly.",
+        "[DIVERGE] Explore Variance."
+      ],
     }, { status: 200 });
 
   } catch (error: any) {
-    console.error("Chronos pipeline failed:", error);
-    return NextResponse.json({
-      error: 'History Corrupted',
-      details: error.message
-    }, { status: 500 });
+    console.error("Pipeline Failure:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
