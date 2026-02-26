@@ -10,7 +10,7 @@ import { StoryBranching } from '@/components/StoryBranching';
 
 export default function ChronosLab() {
   const [apiKey, setApiKey] = useState<string | null>(null);
-  const { state, lore, imageUrl, videoUrl, chronoPaths, error, reconstruct, reset } = useChronos();
+  const { state, lore, imageUrl, videoUrl, chronoPaths, error, reconstruct, exportCapsule, reset } = useChronos();
 
   if (!apiKey) {
     return (
@@ -25,7 +25,7 @@ export default function ChronosLab() {
     <main className="h-screen w-screen flex flex-col relative overflow-hidden bg-void font-mono">
       {/* Rainbow Burst Effecter (Slash Layer) */}
       <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-chrono-cyan/5 to-transparent skew-x-12 -translate-x-20 pointer-events-none" />
-      
+
       <header className="h-20 border-b border-white/10 flex items-center justify-between px-12 bg-black/80 backdrop-blur-2xl relative z-30">
         <div className="flex items-center gap-8">
           <div className="text-3xl font-black italic tracking-tighter text-white glitch-effect cursor-crosshair">
@@ -36,7 +36,7 @@ export default function ChronosLab() {
             <span className="text-[9px] text-white/40">LATENCY_SYNC: 0.002ms</span>
           </div>
         </div>
-        
+
         <div className="flex items-center gap-12">
            <div className="text-right">
               <div className="text-[10px] font-bold text-white/30 uppercase tracking-widest">Protocol Status</div>
@@ -58,7 +58,7 @@ export default function ChronosLab() {
             </h2>
             <TerminalInput onSubmit={(url) => reconstruct(url, apiKey)} />
           </div>
-          
+
           <div className="chrome-container rounded-3xl flex-1 overflow-hidden flex flex-col relative border-t-2 border-chrono-purple/50">
             <div className="p-8 border-b border-white/10 bg-black/20 flex justify-between items-center">
               <h2 className="text-xs font-black text-white uppercase tracking-widest">Data_Stream</h2>
@@ -69,7 +69,9 @@ export default function ChronosLab() {
               </div>
             </div>
             <div className="flex-1 overflow-y-auto p-10 scrollbar-hide">
-              {lore ? <ArtifactScanner lore={lore} /> : (
+              {error ? (
+                <div className="text-history-red font-bold animate-pulse">{error}</div>
+              ) : lore ? <ArtifactScanner lore={lore} /> : (
                 <div className="h-full flex flex-col items-center justify-center opacity-40">
                   <div className="text-[10px] font-black text-chrono-cyan mb-4 tracking-[0.3em] uppercase">Deep Scan Required</div>
                   <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-chrono-cyan to-transparent animate-pulse" />
@@ -87,21 +89,21 @@ export default function ChronosLab() {
                 <div className="absolute top-[10%] left-[-10%] w-[120%] h-[2px] bg-chrono-cyan/20 -rotate-12 shadow-[0_0_15px_#00f2ff]" />
                 <div className="absolute bottom-[10%] right-[-10%] w-[120%] h-[2px] bg-chrono-purple/20 -rotate-12 shadow-[0_0_15px_#bc13fe]" />
              </div>
-             
+
              <ChronoDisplay state={state} imageUrl={imageUrl} videoUrl={videoUrl} />
           </div>
 
           <div className="h-44 chrome-container p-8 rounded-3xl flex items-center justify-center relative overflow-hidden border-b-4 border-chrono-cyan/30">
              {state === 'COMPLETE' ? (
-               <StoryBranching chronoPaths={chronoPaths} onExport={() => {}} />
+               <StoryBranching chronoPaths={chronoPaths} onExport={exportCapsule} />
              ) : (
                <div className="flex flex-col items-center gap-2">
                   <div className="text-[10px] font-black tracking-[1em] uppercase text-white/20">Timeline_Sync_Buffer</div>
                   <div className="w-64 h-1 bg-white/5 rounded-full overflow-hidden">
-                     <motion.div 
-                        animate={{ x: ['-100%', '100%'] }} 
+                     <motion.div
+                        animate={{ x: ['-100%', '100%'] }}
                         transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                        className="w-1/2 h-full bg-gradient-to-r from-chrono-cyan via-chrono-purple to-chrono-cyan" 
+                        className="w-1/2 h-full bg-gradient-to-r from-chrono-cyan via-chrono-purple to-chrono-cyan"
                      />
                   </div>
                </div>
@@ -112,4 +114,3 @@ export default function ChronosLab() {
     </main>
   );
 }
-
