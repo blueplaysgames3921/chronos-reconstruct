@@ -1,4 +1,3 @@
-
 import { POLLINATIONS_MODELS } from './constants';
 
 const BASE_URL = "https://gen.pollinations.ai";
@@ -39,11 +38,19 @@ export class Pollinations {
 
       } else {
         const model = isVideoTask ? 'grok-video' : 'flux';
-        const encodedPrompt = encodeURIComponent(prompt);
+        
+        // Clean prompt for URL safety to prevent loading errors
+        const cleanPrompt = prompt
+          .replace(/[^a-zA-Z0-9\s,.-]/g, '')
+          .split(' ')
+          .slice(0, 50)
+          .join(' ');
+
+        const encodedPrompt = encodeURIComponent(cleanPrompt);
         const seed = data.seed || Math.floor(Math.random() * 100000);
 
-        // Standardized GET format for Gen endpoint
-        const outputUrl = `${BASE_URL}/image/${encodedPrompt}?model=${model}&seed=${seed}&nologo=true&width=1024&height=1024`;
+        // nologo and direct dimensions ensure the image loads as a raw file
+        const outputUrl = `${BASE_URL}/image/${encodedPrompt}?model=${model}&seed=${seed}&width=1024&height=1024&nologo=true`;
 
         return { output: outputUrl };
       }
