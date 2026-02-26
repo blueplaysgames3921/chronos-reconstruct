@@ -11,7 +11,7 @@ export class Pollinations {
 
   async dispatch(prompt: string, data: Record<string, any>): Promise<any> {
     const isTextTask = prompt.includes('Analyze') || prompt.includes('Report');
-    const isVideoTask = prompt.includes('Animate') || prompt.includes('temporal');
+    const isVideoTask = prompt.includes('Animate') || prompt.includes('temporal') || data.model === 'grok-video';
 
     try {
       if (isTextTask) {
@@ -37,24 +37,25 @@ export class Pollinations {
         });
 
         if (!response.ok) throw new Error(`AI Gateway Error: ${response.statusText}`);
-        
+
         const result = await response.json();
         return { output: result.choices[0]?.message?.content || "" };
 
       } else {
         const model = isVideoTask ? 'grok-video' : 'flux';
 
-        // Clean prompt for URL safety
+        // Clean prompt but keep enough detail for high quality
         const cleanPrompt = prompt
           .replace(/[^a-zA-Z0-9\s]/g, '')
           .split(' ')
-          .slice(0, 60)
+          .slice(0, 50)
           .join(' ');
 
         const encodedPrompt = encodeURIComponent(cleanPrompt);
         const seed = data.seed || Math.floor(Math.random() * 100000);
 
-        // Standardized format: Ensure no feed and no logo for clean reconstruction
+        // We use the full URL format. 
+        // Note: For grok-video, the system expects the URL to be accessed.
         const outputUrl = `${BASE_URL}/image/${encodedPrompt}?model=${model}&seed=${seed}&width=1024&height=1024&nologo=true&nofeed=true`;
 
         return { output: outputUrl };
