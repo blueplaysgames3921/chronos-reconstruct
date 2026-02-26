@@ -15,6 +15,7 @@ export class Pollinations {
 
     try {
       if (isTextTask) {
+        // Full Gemini-Fast Vision/Text implementation
         const response = await fetch(`${BASE_URL}/v1/chat/completions`, {
           method: 'POST',
           headers: {
@@ -25,7 +26,10 @@ export class Pollinations {
             messages: [{
               role: 'user',
               content: data.image
-                ? [{ type: "text", text: prompt }, { type: "image_url", image_url: { url: data.image } }]
+                ? [
+                    { type: "text", text: prompt }, 
+                    { type: "image_url", image_url: { url: data.image } }
+                  ]
                 : prompt
             }],
             model: 'gemini-fast',
@@ -34,23 +38,25 @@ export class Pollinations {
         });
 
         const result = await response.json();
-        return { output: result.choices[0]?.message?.content || "" };
+        const content = result.choices[0]?.message?.content || "";
+        return { output: content };
 
       } else {
+        // Image (Flux) or Video (Grok-Video) implementation
         const model = isVideoTask ? 'grok-video' : 'flux';
         
-        // Clean prompt for URL safety to prevent loading errors
+        // STRICTURE: We sanitize the prompt to ensure no special characters break the GET URL
         const cleanPrompt = prompt
           .replace(/[^a-zA-Z0-9\s,.-]/g, '')
           .split(' ')
-          .slice(0, 50)
+          .slice(0, 70) 
           .join(' ');
 
         const encodedPrompt = encodeURIComponent(cleanPrompt);
         const seed = data.seed || Math.floor(Math.random() * 100000);
 
-        // nologo and direct dimensions ensure the image loads as a raw file
-        const outputUrl = `${BASE_URL}/image/${encodedPrompt}?model=${model}&seed=${seed}&width=1024&height=1024&nologo=true`;
+        // Standardized GET format for Pollinations Gen endpoint
+        const outputUrl = `${BASE_URL}/image/${encodedPrompt}?model=${model}&seed=${seed}&width=1024&height=1024&nologo=true&enhance=false`;
 
         return { output: outputUrl };
       }
