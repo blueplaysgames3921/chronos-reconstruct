@@ -26,7 +26,7 @@ export class Pollinations {
               role: 'user',
               content: data.image
                 ? [
-                    { type: "text", text: prompt }, 
+                    { type: "text", text: prompt },
                     { type: "image_url", image_url: { url: data.image } }
                   ]
                 : prompt
@@ -36,13 +36,15 @@ export class Pollinations {
           })
         });
 
+        if (!response.ok) throw new Error(`AI Gateway Error: ${response.statusText}`);
+        
         const result = await response.json();
         return { output: result.choices[0]?.message?.content || "" };
 
       } else {
         const model = isVideoTask ? 'grok-video' : 'flux';
-        
-        // Remove characters that break URL parsing in many browsers
+
+        // Clean prompt for URL safety
         const cleanPrompt = prompt
           .replace(/[^a-zA-Z0-9\s]/g, '')
           .split(' ')
@@ -52,7 +54,7 @@ export class Pollinations {
         const encodedPrompt = encodeURIComponent(cleanPrompt);
         const seed = data.seed || Math.floor(Math.random() * 100000);
 
-        // Standardized format: nologo and no-cache ensure fresh delivery
+        // Standardized format: Ensure no feed and no logo for clean reconstruction
         const outputUrl = `${BASE_URL}/image/${encodedPrompt}?model=${model}&seed=${seed}&width=1024&height=1024&nologo=true&nofeed=true`;
 
         return { output: outputUrl };
