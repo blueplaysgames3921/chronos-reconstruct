@@ -15,8 +15,13 @@ export class Pollinations {
 
     try {
       if (isTextTask) {
-        // TEXT TASK: Uses POST with Authorization Header
-        
+        // --- TEXT TASK: FIXED TO PREVENT API ERROR ---
+        // We pass the image URL as part of the prompt string to ensure 
+        // the model sees it without the strict multimodal array crashing it.
+        const fullPrompt = data.image 
+          ? `${prompt}\n\n[ANALYZE IMAGE AT THIS URL: ${data.image}]` 
+          : prompt;
+
         const response = await fetch(`${BASE_URL}/v1/chat/completions`, {
           method: 'POST',
           headers: {
@@ -26,31 +31,26 @@ export class Pollinations {
           body: JSON.stringify({
             messages: [{
               role: 'user',
-              content: data.image
-                ? [
-                    { type: "text", text: prompt },
-                    { type: "image_url", image_url: { url: data.image } }
-                  ]
-                : prompt
+              content: fullPrompt
             }],
             model: 'gemini-fast',
             seed: Math.floor(Math.random() * 100000)
           })
         });
 
-        
-
-        if (!response.ok) throw new Error(`Text API Error: ${response.statusText}`);
+        if (!response.ok) {
+          const errorData = await response.text();
+          throw new Error(`Text API Error: ${response.status} ${errorData}`);
+        }
 
         const result = await response.json();
         return { output: result.choices[0]?.message?.content || "" };
 
       } else {
-        // IMAGE/VIDEO TASK: Uses GET with Key in URL
+        // --- MEDIA TASK: WORKING GET LOGIC ---
         const model = isVideoTask ? 'grok-video' : 'flux';
         const enhance = isVideoTask ? 'false' : 'true';
 
-        // Clean prompt for URL safety
         const cleanPrompt = prompt
           .replace(/[^a-zA-Z0-9\s]/g, '')
           .split(' ')
@@ -60,12 +60,9 @@ export class Pollinations {
         const encodedPrompt = encodeURIComponent(cleanPrompt);
         const seed = data.seed || Math.floor(Math.random() * 100000);
 
-        // Construct the full authenticated URL
         // Format: [BASE]/image/[prompt]?model=[model]&seed=[seed]&width=1024&height=1024&enhance=[bool]&nologo=true&key=[apiKey]
         const authenticatedUrl = `${BASE_URL}/image/${encodedPrompt}?model=${model}&width=1024&height=1024&seed=${seed}&enhance=${enhance}&nologo=true&key=${this.apiKey}`;
 
-        // For media generation via URL, we return the string directly.
-        // The browser's <img> and <video> tags will use this URL to trigger the GET request.
         return { output: authenticatedUrl };
       }
     } catch (error: any) {
