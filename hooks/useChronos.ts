@@ -13,6 +13,7 @@ export const useChronos = () => {
   const [error, setError] = useState<string | null>(null);
 
   const reconstruct = async (sourceImageUrl: string, apiKey: string) => {
+    // Reset state for new scan
     setState('SCANNING');
     setError(null);
     setVideoUrl(null);
@@ -22,7 +23,7 @@ export const useChronos = () => {
     const pollinations = new Pollinations(apiKey);
 
     try {
-      // Stage 1: Analyze via Browser
+      // Stage 1: Analyze via Gemini-Fast (POST)
       setState('RECONSTRUCTING');
       const visionResponse = await pollinations.dispatch(SCIENTIFIC_RESTORATION_REPORT_PROMPT, { image: sourceImageUrl });
 
@@ -40,32 +41,35 @@ export const useChronos = () => {
         "[DIVERGE] Explore Variance."
       ]);
 
-      // Stage 2: Generate Reconstruction URL
+      // Stage 2: Generate Reconstruction Image (Flux)
       const fluxPrompt = FLUX_PROMPT(cleanLore);
       const fluxResponse = await pollinations.dispatch(fluxPrompt, {});
       
       if (!fluxResponse.output) throw new Error("Image reconstruction failed.");
       setImageUrl(fluxResponse.output);
                                                                                  
-      // Stage 3: Generate Animation URL
+      // Stage 3: Generate Animation URL (Grok-Video)
+      // We set state to ANIMATING *after* the image is ready so the user sees the artifact first.
       setState('ANIMATING');
+      
       const videoResponse = await pollinations.dispatch(
-        "Cinematic temporal animation, slow movement, historical restoration, high definition",
+        "Cinematic temporal animation, slow movement, historical restoration, high definition, museum quality",
         { image: fluxResponse.output, model: 'grok-video' }
       );
 
       if (videoResponse.output) {
         setVideoUrl(videoResponse.output);
       } else {
-        console.warn("Video URL not generated, falling back to image.");
+        console.warn("Temporal Pulse (Video) failed. Using Static Reconstruction.");
       }
 
-      // Final Transition
+      // Final Transition: Marks the end of the sequence
       setState('COMPLETE');
 
     } catch (err: any) {
-      console.error("Reconstruction Error:", err);
-      setError(err.message);
+      // Errors will be caught and displayed in the terminal sidebar
+      console.error("Chronos Reconstruction Failure:", err);
+      setError(err.message || "An unknown temporal anomaly occurred.");
       setState('ERROR');
     }
   };
@@ -78,11 +82,14 @@ export const useChronos = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ lore, imageUrl, videoUrl })
       });
+      
+      if (!response.ok) throw new Error("Export failed");
+      
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `chronos-capsule.html`;
+      a.download = `chronos-capsule-${Date.now()}.html`;
       document.body.appendChild(a);
       a.click();
       a.remove();
