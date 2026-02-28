@@ -16,6 +16,7 @@ export class Pollinations {
     try {
       if (isTextTask) {
         // TEXT TASK: Uses POST with Authorization Header
+        
         const response = await fetch(`${BASE_URL}/v1/chat/completions`, {
           method: 'POST',
           headers: {
@@ -36,6 +37,8 @@ export class Pollinations {
             seed: Math.floor(Math.random() * 100000)
           })
         });
+
+        
 
         if (!response.ok) throw new Error(`Text API Error: ${response.statusText}`);
 
