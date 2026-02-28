@@ -15,7 +15,7 @@ export class Pollinations {
 
     try {
       if (isTextTask) {
-        // TEXT TASK: Uses POST (Already working as you confirmed)
+        // TEXT TASK: Uses POST with Authorization Header
         const response = await fetch(`${BASE_URL}/v1/chat/completions`, {
           method: 'POST',
           headers: {
@@ -43,8 +43,9 @@ export class Pollinations {
         return { output: result.choices[0]?.message?.content || "" };
 
       } else {
-        // IMAGE/VIDEO TASK: Uses GET (The logic you caught)
+        // IMAGE/VIDEO TASK: Uses GET with Key in URL
         const model = isVideoTask ? 'grok-video' : 'flux';
+        const enhance = isVideoTask ? 'false' : 'true';
 
         // Clean prompt for URL safety
         const cleanPrompt = prompt
@@ -56,26 +57,13 @@ export class Pollinations {
         const encodedPrompt = encodeURIComponent(cleanPrompt);
         const seed = data.seed || Math.floor(Math.random() * 100000);
 
-        // Construct the full URL
-        const requestUrl = `${BASE_URL}/image/${encodedPrompt}?model=${model}&seed=${seed}&width=1024&height=1024&nologo=true&nofeed=true`;
+        // Construct the full authenticated URL
+        // Format: [BASE]/image/[prompt]?model=[model]&seed=[seed]&width=1024&height=1024&enhance=[bool]&nologo=true&key=[apiKey]
+        const authenticatedUrl = `${BASE_URL}/image/${encodedPrompt}?model=${model}&width=1024&height=1024&seed=${seed}&enhance=${enhance}&nologo=true&key=${this.apiKey}`;
 
-        // THE FIX: We MUST fetch the URL to send the Authorization header
-        const response = await fetch(requestUrl, {
-          method: 'GET',
-          headers: {
-            'Accept': isVideoTask ? 'video/mp4' : 'image/jpeg, image/png',
-            'Authorization': `Bearer ${this.apiKey}`
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error(`Media Generation Error: ${response.status} ${response.statusText}`);
-        }
-
-        // Pollinations returns the generated media directly. 
-        // We return the URL so the UI can display it, but the fetch above 
-        // ensures the generation process is actually authorized and triggered.
-        return { output: response.url };
+        // For media generation via URL, we return the string directly.
+        // The browser's <img> and <video> tags will use this URL to trigger the GET request.
+        return { output: authenticatedUrl };
       }
     } catch (error: any) {
       console.error("Pollinations Dispatch Error:", error.message);
