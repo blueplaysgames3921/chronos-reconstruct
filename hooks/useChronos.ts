@@ -13,7 +13,6 @@ export const useChronos = () => {
   const [error, setError] = useState<string | null>(null);
 
   const reconstruct = async (sourceImageUrl: string, apiKey: string) => {
-    // Reset state for new scan session
     setState('SCANNING');
     setError(null);
     setVideoUrl(null);
@@ -23,7 +22,7 @@ export const useChronos = () => {
     const pollinations = new Pollinations(apiKey);
 
     try {
-      // Stage 1: Analyze via Gemini-Fast
+      // Stage 1: Analyze
       setState('RECONSTRUCTING');
       const visionResponse = await pollinations.dispatch(SCIENTIFIC_RESTORATION_REPORT_PROMPT, { image: sourceImageUrl });
 
@@ -41,15 +40,14 @@ export const useChronos = () => {
         "[DIVERGE] Explore Variance."
       ]);
 
-      // Stage 2: Generate Reconstruction Image
+      // Stage 2: Image
       const fluxPrompt = FLUX_PROMPT(cleanLore);
       const fluxResponse = await pollinations.dispatch(fluxPrompt, {});
       
       if (!fluxResponse.output) throw new Error("Image reconstruction failed.");
       setImageUrl(fluxResponse.output);
                                                                                  
-      // Stage 3: Generate Animation URL
-      // Switching to ANIMATING here ensures the UI shows the "Temporal Pulse" active state
+      // Stage 3: Animation
       setState('ANIMATING');
       
       const videoResponse = await pollinations.dispatch(
@@ -61,11 +59,12 @@ export const useChronos = () => {
         setVideoUrl(videoResponse.output);
       } else {
         console.warn("Temporal Pulse (Video) failed. Using Static Reconstruction.");
+        // If video fails, we move to complete since there is no video to wait for
+        setState('COMPLETE');
       }
 
-      // Final Transition: Logic is done.
-      // The UI (ChronoDisplay) will handle hiding the loader once the media is ready.
-      setState('COMPLETE');
+      // We DO NOT set state to 'COMPLETE' here anymore.
+      // We let the media loading events in the UI determine when the "sync" is done.
 
     } catch (err: any) {
       console.error("Chronos Reconstruction Failure:", err);
