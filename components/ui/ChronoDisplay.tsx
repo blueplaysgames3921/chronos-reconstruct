@@ -14,33 +14,23 @@ export const ChronoDisplay = ({ imageUrl, videoUrl, state }: ChronoDisplayProps)
   
   const isVisible = state !== 'IDLE' && state !== 'ERROR';
 
-  // Reset readiness when a new phase starts or a new URL arrives
+  // Whenever a new URL comes in (Image then Video), reset readiness
   useEffect(() => {
     if (imageUrl || videoUrl) {
       setIsMediaReady(false);
-      
-      // Hard fallback: Bypasses 10s limits.
-      // We wait 25s for Pollinations to "cook" the image/video if events fail to fire.
-      const timer = setTimeout(() => {
-        setIsMediaReady(true);
-      }, 25000);
-
-      return () => clearTimeout(timer);
     }
   }, [imageUrl, videoUrl, retryKey]);
 
-  // Handle errors (like 404 while generating) by bumping a retry key to refresh the src
   const handleMediaError = () => {
     if (retryKey < 3) {
       setTimeout(() => setRetryKey(prev => prev + 1), 5000);
     } else {
-      setIsMediaReady(true); // Stop loading loop and show current state
+      setIsMediaReady(true); 
     }
   };
 
-  // Logic: Show loader if we are in an active processing state, 
-  // OR if we have media but it hasn't signaled "Ready" via onLoad/onLoadedData.
-  const showLoader = (state !== 'IDLE' && state !== 'COMPLETE' && state !== 'ERROR') || (imageUrl && !isMediaReady);
+  // The loader only disappears when isMediaReady is true, regardless of the state string.
+  const showLoader = isVisible && !isMediaReady;
 
   return (
     <motion.div
@@ -101,6 +91,22 @@ export const ChronoDisplay = ({ imageUrl, videoUrl, state }: ChronoDisplayProps)
                 />
               ) : (
                 <img
+                  src={`${imageUrl}&cache=${retryKey}`}
+                  alt="Artifact"
+                  onLoad={() => setIsMediaReady(true)}
+                  onError={handleMediaError}
+                  className="w-full h-full object-contain p-4 drop-shadow-[0_0_30px_rgba(0,242,255,0.5)]"
+                />
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <div className="absolute inset-0 pointer-events-none opacity-20 bg-[linear-gradient(45deg,transparent_25%,rgba(188,19,254,0.4)_50%,transparent_75%)] bg-[length:200%_200%] animate-[nebula-drift_5s_linear_infinite]" />
+      </div>
+    </motion.div>
+  );
+};
                   src={`${imageUrl}&cache=${retryKey}`}
                   alt="Artifact Reconstruction"
                   onLoad={() => setIsMediaReady(true)}
