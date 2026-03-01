@@ -13,7 +13,7 @@ export const useChronos = () => {
   const [error, setError] = useState<string | null>(null);
 
   const reconstruct = async (sourceImageUrl: string, apiKey: string) => {
-    // Reset state for new scan
+    // Reset state for new scan session
     setState('SCANNING');
     setError(null);
     setVideoUrl(null);
@@ -23,7 +23,7 @@ export const useChronos = () => {
     const pollinations = new Pollinations(apiKey);
 
     try {
-      // Stage 1: Analyze via Gemini-Fast (POST)
+      // Stage 1: Analyze via Gemini-Fast
       setState('RECONSTRUCTING');
       const visionResponse = await pollinations.dispatch(SCIENTIFIC_RESTORATION_REPORT_PROMPT, { image: sourceImageUrl });
 
@@ -41,15 +41,15 @@ export const useChronos = () => {
         "[DIVERGE] Explore Variance."
       ]);
 
-      // Stage 2: Generate Reconstruction Image (Flux)
+      // Stage 2: Generate Reconstruction Image
       const fluxPrompt = FLUX_PROMPT(cleanLore);
       const fluxResponse = await pollinations.dispatch(fluxPrompt, {});
       
       if (!fluxResponse.output) throw new Error("Image reconstruction failed.");
       setImageUrl(fluxResponse.output);
                                                                                  
-      // Stage 3: Generate Animation URL (Grok-Video)
-      // We set state to ANIMATING *after* the image is ready so the user sees the artifact first.
+      // Stage 3: Generate Animation URL
+      // Switching to ANIMATING here ensures the UI shows the "Temporal Pulse" active state
       setState('ANIMATING');
       
       const videoResponse = await pollinations.dispatch(
@@ -63,11 +63,11 @@ export const useChronos = () => {
         console.warn("Temporal Pulse (Video) failed. Using Static Reconstruction.");
       }
 
-      // Final Transition: Marks the end of the sequence
+      // Final Transition: Logic is done.
+      // The UI (ChronoDisplay) will handle hiding the loader once the media is ready.
       setState('COMPLETE');
 
     } catch (err: any) {
-      // Errors will be caught and displayed in the terminal sidebar
       console.error("Chronos Reconstruction Failure:", err);
       setError(err.message || "An unknown temporal anomaly occurred.");
       setState('ERROR');
