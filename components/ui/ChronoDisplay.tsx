@@ -107,20 +107,3 @@ export const ChronoDisplay = ({ imageUrl, videoUrl, state }: ChronoDisplayProps)
     </motion.div>
   );
 };
-                  src={`${imageUrl}&cache=${retryKey}`}
-                  alt="Artifact Reconstruction"
-                  onLoad={() => setIsMediaReady(true)}
-                  onError={handleMediaError}
-                  className="w-full h-full object-contain p-4 drop-shadow-[0_0_30px_rgba(0,242,255,0.5)]"
-                />
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Cinematic Scanlines / Drift Overlay */}
-        <div className="absolute inset-0 pointer-events-none opacity-20 bg-[linear-gradient(45deg,transparent_25%,rgba(188,19,254,0.4)_50%,transparent_75%)] bg-[length:200%_200%] animate-[nebula-drift_5s_linear_infinite]" />
-      </div>
-    </motion.div>
-  );
-};
