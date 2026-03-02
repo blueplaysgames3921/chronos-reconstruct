@@ -12,23 +12,15 @@ interface ChronoDisplayProps {
 
 export const ChronoDisplay = ({ imageUrl, videoUrl, state, enhanceStatus, onEnhance }: ChronoDisplayProps) => {
   const [isMediaReady, setIsMediaReady] = useState(false);
-  const [retryKey, setRetryKey] = useState(0);
   
   const isVisible = state !== 'IDLE' && state !== 'ERROR';
 
+  // Reset ready state when a new generation starts
   useEffect(() => {
-    if (imageUrl || videoUrl) {
+    if (state === 'SCANNING' || state === 'RECONSTRUCTING') {
       setIsMediaReady(false);
     }
-  }, [imageUrl, videoUrl, retryKey]);
-
-  const handleMediaError = () => {
-    if (retryKey < 3) {
-      setTimeout(() => setRetryKey(prev => prev + 1), 5000);
-    } else {
-      setIsMediaReady(true); 
-    }
-  };
+  }, [state]);
 
   const showLoader = (state === 'SCANNING' || state === 'RECONSTRUCTING') || (imageUrl && !isMediaReady);
 
@@ -51,14 +43,14 @@ export const ChronoDisplay = ({ imageUrl, videoUrl, state, enhanceStatus, onEnha
                 exit={{ opacity: 0 }}
                 className="absolute inset-0 z-40 flex flex-col items-center justify-center bg-void/80 backdrop-blur-md"
               >
-                <div className="relative w-32 h-32 mb-8">
+                <div className="relative w-24 h-24 mb-6">
                    <svg className="w-full h-full animate-spin" viewBox="0 0 100 100">
-                      <circle cx="50" cy="50" r="45" stroke="currentColor" strokeWidth="2" fill="none" className="text-chrono-cyan/20" />
-                      <circle cx="50" cy="50" r="45" stroke="currentColor" strokeWidth="4" fill="none" strokeDasharray="100 200" className="text-chrono-cyan shadow-[0_0_15px_#00f2ff]" />
+                      <circle cx="50" cy="50" r="45" stroke="currentColor" strokeWidth="2" fill="none" className="text-chrono-cyan/10" />
+                      <circle cx="50" cy="50" r="45" stroke="currentColor" strokeWidth="4" fill="none" strokeDasharray="140 200" className="text-chrono-cyan" />
                    </svg>
                 </div>
-                <p className="text-2xl font-black italic tracking-[0.5em] digital-fire-text">RE-SYNCING REALITY</p>
-                <p className="text-[10px] font-mono text-chrono-cyan/40 mt-4 uppercase tracking-[0.2em]">
+                <p className="text-xl font-black italic tracking-[0.4em] text-white">RE-SYNCING REALITY</p>
+                <p className="text-[10px] font-mono text-chrono-cyan/60 mt-2 uppercase tracking-[0.2em]">
                     PHASE: {state === 'SCANNING' ? 'TEMPORAL UPLINK' : 'MOLECULAR RECONSTRUCTION'}
                 </p>
               </motion.div>
@@ -68,28 +60,25 @@ export const ChronoDisplay = ({ imageUrl, videoUrl, state, enhanceStatus, onEnha
           <AnimatePresence mode="wait">
             {imageUrl && (
               <motion.div
-                key={`${videoUrl || imageUrl}-${retryKey}`}
-                initial={{ filter: 'blur(40px) brightness(0)', scale: 1.1 }}
-                animate={isMediaReady ? { filter: 'blur(0px) brightness(1)', scale: 1 } : { filter: 'blur(40px) brightness(0)', scale: 1.1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.8 }}
+                key={videoUrl || imageUrl}
+                initial={{ opacity: 0 }}
+                animate={isMediaReady ? { opacity: 1 } : { opacity: 0 }}
+                transition={{ duration: 0.5 }}
                 className="w-full h-full flex items-center justify-center"
               >
                 {videoUrl ? (
                   <video
-                    src={`${videoUrl}&cache=${retryKey}`}
+                    src={videoUrl}
                     autoPlay loop muted playsInline
                     onLoadedData={() => setIsMediaReady(true)}
-                    onError={handleMediaError}
                     className="w-full h-full object-cover"
                   />
                 ) : (
                   <img
-                    src={`${imageUrl}&cache=${retryKey}`}
+                    src={imageUrl}
                     alt="Artifact"
                     onLoad={() => setIsMediaReady(true)}
-                    onError={handleMediaError}
-                    className="w-full h-full object-contain p-4 drop-shadow-[0_0_30px_rgba(0,242,255,0.5)]"
+                    className="w-full h-full object-contain p-4 drop-shadow-[0_0_20px_rgba(0,242,255,0.3)]"
                   />
                 )}
               </motion.div>
@@ -98,7 +87,6 @@ export const ChronoDisplay = ({ imageUrl, videoUrl, state, enhanceStatus, onEnha
         </div>
       </motion.div>
 
-      {/* ENHANCE BUTTON UI */}
       {state === 'COMPLETE' && !videoUrl && (
         <motion.div 
           initial={{ opacity: 0, y: 10 }}
@@ -115,11 +103,10 @@ export const ChronoDisplay = ({ imageUrl, videoUrl, state, enhanceStatus, onEnha
             </span>
           </button>
           <p className="mt-3 text-[10px] font-mono text-white/40 uppercase tracking-[0.2em] leading-relaxed">
-            "This process requires massive computational resonance. Total reconstruction is not guaranteed—deep archive fragments may be lost to time."
+            "Direct video synthesis may take up to 300 seconds. Connection stability not guaranteed."
           </p>
         </motion.div>
       )}
     </div>
   );
 };
-
