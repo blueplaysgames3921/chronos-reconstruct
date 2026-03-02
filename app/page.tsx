@@ -115,4 +115,12 @@ export default function ChronosLab() {
              ) : (
                <div className="flex flex-col items-center gap-2">
                   <div className="text-[10px] font-black tracking-[1em] uppercase text-white/20">Timeline_Sync_Buffer</div>
-                  <div className="w-64 h-1 bg-white/5 rounded-full overflow-hidden">
+                  <div className="w-64 h-1 bg-white/5 rounded-full overflow-hidden" />
+                 </div>
+             )}
+          </div>
+        </section>
+      </div>
+    </main>
+  );
+}
