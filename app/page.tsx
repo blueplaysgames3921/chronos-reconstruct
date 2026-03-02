@@ -10,7 +10,19 @@ import { StoryBranching } from '@/components/StoryBranching';
 
 export default function ChronosLab() {
   const [apiKey, setApiKey] = useState<string | null>(null);
-  const { state, lore, imageUrl, videoUrl, chronoPaths, error, reconstruct, exportCapsule, reset } = useChronos();
+  const { 
+    state, 
+    enhanceStatus, 
+    lore, 
+    imageUrl, 
+    videoUrl, 
+    chronoPaths, 
+    error, 
+    reconstruct, 
+    enhance, 
+    exportCapsule, 
+    reset 
+  } = useChronos();
 
   if (!apiKey) {
     return (
@@ -90,27 +102,13 @@ export default function ChronosLab() {
                 <div className="absolute bottom-[10%] right-[-10%] w-[120%] h-[2px] bg-chrono-purple/20 -rotate-12 shadow-[0_0_15px_#bc13fe]" />
              </div>
 
-             <ChronoDisplay state={state} imageUrl={imageUrl} videoUrl={videoUrl} />
+             <ChronoDisplay 
+                state={state} 
+                imageUrl={imageUrl} 
+                videoUrl={videoUrl} 
+                enhanceStatus={enhanceStatus} 
+                onEnhance={() => enhance(apiKey)}
+             />
           </div>
 
-          <div className="h-44 chrome-container p-8 rounded-3xl flex items-center justify-center relative overflow-hidden border-b-4 border-chrono-cyan/30">
-             {state === 'COMPLETE' ? (
-               <StoryBranching chronoPaths={chronoPaths} onExport={exportCapsule} />
-             ) : (
-               <div className="flex flex-col items-center gap-2">
-                  <div className="text-[10px] font-black tracking-[1em] uppercase text-white/20">Timeline_Sync_Buffer</div>
-                  <div className="w-64 h-1 bg-white/5 rounded-full overflow-hidden">
-                     <motion.div
-                        animate={{ x: ['-100%', '100%'] }}
-                        transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                        className="w-1/2 h-full bg-gradient-to-r from-chrono-cyan via-chrono-purple to-chrono-cyan"
-                     />
-                  </div>
-               </div>
-             )}
-          </div>
-        </section>
-      </div>
-    </main>
-  );
-}
+          <div className="h
