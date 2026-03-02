@@ -25,7 +25,6 @@ export const useChronos = () => {
     const pollinations = new Pollinations(apiKey);
 
     try {
-      // Stage 1: Analyze (Gemini-Fast)
       setState('RECONSTRUCTING');
       const visionResponse = await pollinations.dispatch(SCIENTIFIC_RESTORATION_REPORT_PROMPT, { image: sourceImageUrl });
 
@@ -34,7 +33,7 @@ export const useChronos = () => {
         .replace(/["'{}[\]]/g, "")
         .trim();
                                                                            
-      if (!cleanLore) throw new Error("Timeline analysis failed to return data."); 
+      if (!cleanLore) throw new Error("Timeline analysis failed."); 
       
       setLore(cleanLore);
       setChronoPaths([
@@ -43,20 +42,16 @@ export const useChronos = () => {
         "[DIVERGE] Explore Variance."
       ]);
 
-      // Stage 2: Image Reconstruction (Flux - 0.3s)
       const fluxPrompt = FLUX_PROMPT(cleanLore);
       const fluxResponse = await pollinations.dispatch(fluxPrompt, {});
       
       if (!fluxResponse.output) throw new Error("Image reconstruction failed.");
+      
       setImageUrl(fluxResponse.output);
-                                                                                 
-      // Stage 3: Immediate Completion
-      // We do not wait for video here. The user is now free to Export or View.
       setState('COMPLETE');
 
     } catch (err: any) {
-      console.error("Chronos Reconstruction Failure:", err);
-      setError(err.message || "An unknown temporal anomaly occurred.");
+      setError(err.message || "Temporal anomaly detected.");
       setState('ERROR');
     }
   };
@@ -67,19 +62,23 @@ export const useChronos = () => {
     const pollinations = new Pollinations(apiKey);
 
     try {
+      // Note: Video generation can take minutes. 
       const videoResponse = await pollinations.dispatch(
         "Cinematic temporal animation, slow movement, historical restoration, high definition, museum quality",
-        { image: imageUrl, model: 'grok-video' }
+        { 
+          image: imageUrl, 
+          model: 'grok-video' 
+        }
       );
 
       if (videoResponse.output) {
         setVideoUrl(videoResponse.output);
         setEnhanceStatus('SUCCESS');
       } else {
-        setEnhanceStatus('FAILED');
+        throw new Error("No video output");
       }
     } catch (err) {
-      console.warn("Temporal Pulse (Video) failed.", err);
+      console.warn("Enhancement failed:", err);
       setEnhanceStatus('FAILED');
     }
   };
