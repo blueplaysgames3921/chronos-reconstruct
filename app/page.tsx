@@ -106,10 +106,15 @@ export default function ChronosLab() {
                 state={state} 
                 imageUrl={imageUrl} 
                 videoUrl={videoUrl} 
-                enhanceStatus={enhanceStatus} 
+                enhanceStatus={enhanceStatus}
                 onEnhance={() => enhance(apiKey)}
              />
           </div>
 
-          <div className="h
-
+          <div className="h-44 chrome-container p-8 rounded-3xl flex items-center justify-center relative overflow-hidden border-b-4 border-chrono-cyan/30">
+             {state === 'COMPLETE' ? (
+               <StoryBranching chronoPaths={chronoPaths} onExport={exportCapsule} />
+             ) : (
+               <div className="flex flex-col items-center gap-2">
+                  <div className="text-[10px] font-black tracking-[1em] uppercase text-white/20">Timeline_Sync_Buffer</div>
+                  <div className="w-64 h-1 bg-white/5 rounded-full overflow-hidden">
