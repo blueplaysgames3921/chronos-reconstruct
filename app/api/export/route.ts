@@ -13,30 +13,38 @@ export async function POST(request: Request) {
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Chronos Archive: ${Date.now()}</title>
+        <title>Project Chronos: Time Capsule</title>
         <style>
-            body { font-family: 'Courier New', monospace; background-color: #020202; color: #00f2ff; padding: 3rem; line-height: 1.6; }
-            .container { max-width: 800px; margin: 0 auto; border: 1px solid #222; padding: 2rem; border-radius: 8px; box-shadow: 0 0 50px rgba(0,242,255,0.05); }
-            h1 { font-style: italic; text-transform: uppercase; letter-spacing: 0.3em; border-bottom: 2px solid #00f2ff; padding-bottom: 1rem; color: #fff; }
-            .report { background: #0a0a0a; padding: 1.5rem; border-left: 4px solid #bc13fe; margin: 2rem 0; white-space: pre-wrap; font-size: 0.9rem; }
-            .media-box { width: 100%; border: 1px solid #333; margin-top: 2rem; overflow: hidden; border-radius: 4px; }
-            img, video { width: 100%; display: block; }
-            .footer { margin-top: 3rem; font-size: 0.7rem; color: #444; text-transform: uppercase; letter-spacing: 0.1em; }
+            body { font-family: 'Courier New', monospace; background-color: #050505; color: #06b6d4; padding: 2rem; line-height: 1.6; }
+            .container { max-width: 800px; margin: 0 auto; border: 1px solid #10b98133; padding: 2rem; background: rgba(16, 185, 129, 0.05); }
+            h1 { color: #10b981; text-transform: uppercase; letter-spacing: 0.2em; border-bottom: 2px solid #10b981; padding-bottom: 0.5rem; }
+            h2 { color: #bc13fe; font-size: 0.9rem; text-transform: uppercase; margin-top: 2rem; }
+            pre { white-space: pre-wrap; word-wrap: break-word; background: #000; padding: 1.5rem; border-left: 3px solid #10b981; color: #a7f3d0; }
+            .media-box { margin-top: 2rem; border: 1px solid #06b6d4; background: #000; overflow: hidden; border-radius: 8px; }
+            img, video { width: 100%; height: auto; display: block; }
+            .footer { margin-top: 3rem; font-size: 0.7rem; color: #10b98155; text-align: center; }
         </style>
     </head>
     <body>
         <div class="container">
-            <h1>Chronos: Temporal Record</h1>
-            <div class="report">
-                <strong>[SCIENTIFIC_RESTORATION_REPORT]</strong><br><br>${lore}
-            </div>
+            <h1>CHRONOS_DEEP_SCAN</h1>
+            <h2>[SCIENTIFIC_RESTORATION_REPORT]</h2>
+            <pre>${lore}</pre>
             
+            <h2>[VISUAL_RECONSTRUCTION]</h2>
             <div class="media-box">
-                ${videoUrl ? `<video autoplay loop muted playsinline src="${videoUrl}"></video>` : `<img src="${imageUrl}" alt="Restored Artifact">`}
+                <img src="${imageUrl}" alt="Restored Artifact">
             </div>
-            
+
+            ${videoUrl ? `
+            <h2>[TEMPORAL_PULSE_ENHANCEMENT]</h2>
+            <div class="media-box">
+                <video controls autoplay loop muted src="${videoUrl}"></video>
+            </div>
+            ` : ''}
+
             <div class="footer">
-                Record Status: STABILIZED // System: BotForgeX Laboratories // Engine: 20k-Nuclear-Bomb-Optimized
+                COMPLETED_BY_CHRONOS_ALPHA // TIMELINE_STABLE
             </div>
         </div>
     </body>
@@ -46,8 +54,8 @@ export async function POST(request: Request) {
   return new NextResponse(htmlContent, {
     status: 200,
     headers: {
-        'Content-Type': 'text/html',
-        'Content-Disposition': `attachment; filename="chronos-record-${Date.now()}.html"`,
+      'Content-Type': 'text/html',
+      'Content-Disposition': `attachment; filename="chronos-capsule-${Date.now()}.html"`,
     },
   });
 }
