@@ -48,7 +48,9 @@ export const useChronos = () => {
       if (!fluxResponse.output) throw new Error("Image reconstruction failed.");
       
       setImageUrl(fluxResponse.output);
-      setState('COMPLETE');
+      setTimeout(() => {
+    setState('COMPLETE');
+}, 500);
 
     } catch (err: any) {
       setError(err.message || "Temporal anomaly detected.");
