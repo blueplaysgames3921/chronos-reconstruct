@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { Pollinations } from '@/lib/pollinations';
 import { SCIENTIFIC_RESTORATION_REPORT_PROMPT, FLUX_PROMPT } from '@/lib/constants';
 
-type ChronosState = 'IDLE' | 'SCANNING' | 'RECONSTRUCTING' | 'ANIMATING' | 'COMPLETE' | 'ERROR';
+type ChronosState = 'IDLE' | 'SCANNING' | 'RECONSTRUCTING' | 'COMPLETE' | 'ERROR';
+type EnhanceStatus = 'IDLE' | 'SEARCHING' | 'SUCCESS' | 'FAILED';
 
 export const useChronos = () => {
   const [state, setState] = useState<ChronosState>('IDLE');
+  const [enhanceStatus, setEnhanceStatus] = useState<EnhanceStatus>('IDLE');
   const [lore, setLore] = useState<string>('');
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
@@ -18,11 +20,12 @@ export const useChronos = () => {
     setVideoUrl(null);
     setImageUrl(null);
     setLore('');
+    setEnhanceStatus('IDLE');
 
     const pollinations = new Pollinations(apiKey);
 
     try {
-      // Stage 1: Analyze
+      // Stage 1: Analyze (Gemini-Fast)
       setState('RECONSTRUCTING');
       const visionResponse = await pollinations.dispatch(SCIENTIFIC_RESTORATION_REPORT_PROMPT, { image: sourceImageUrl });
 
@@ -40,36 +43,44 @@ export const useChronos = () => {
         "[DIVERGE] Explore Variance."
       ]);
 
-      // Stage 2: Image
+      // Stage 2: Image Reconstruction (Flux - 0.3s)
       const fluxPrompt = FLUX_PROMPT(cleanLore);
       const fluxResponse = await pollinations.dispatch(fluxPrompt, {});
       
       if (!fluxResponse.output) throw new Error("Image reconstruction failed.");
       setImageUrl(fluxResponse.output);
                                                                                  
-      // Stage 3: Animation
-      setState('ANIMATING');
-      
-      const videoResponse = await pollinations.dispatch(
-        "Cinematic temporal animation, slow movement, historical restoration, high definition, museum quality",
-        { image: fluxResponse.output, model: 'grok-video' }
-      );
-
-      if (videoResponse.output) {
-        setVideoUrl(videoResponse.output);
-      } else {
-        console.warn("Temporal Pulse (Video) failed. Using Static Reconstruction.");
-        // If video fails, we move to complete since there is no video to wait for
-        setState('COMPLETE');
-      }
-
-      // We DO NOT set state to 'COMPLETE' here anymore.
-      // We let the media loading events in the UI determine when the "sync" is done.
+      // Stage 3: Immediate Completion
+      // We do not wait for video here. The user is now free to Export or View.
+      setState('COMPLETE');
 
     } catch (err: any) {
       console.error("Chronos Reconstruction Failure:", err);
       setError(err.message || "An unknown temporal anomaly occurred.");
       setState('ERROR');
+    }
+  };
+
+  const enhance = async (apiKey: string) => {
+    if (!imageUrl) return;
+    setEnhanceStatus('SEARCHING');
+    const pollinations = new Pollinations(apiKey);
+
+    try {
+      const videoResponse = await pollinations.dispatch(
+        "Cinematic temporal animation, slow movement, historical restoration, high definition, museum quality",
+        { image: imageUrl, model: 'grok-video' }
+      );
+
+      if (videoResponse.output) {
+        setVideoUrl(videoResponse.output);
+        setEnhanceStatus('SUCCESS');
+      } else {
+        setEnhanceStatus('FAILED');
+      }
+    } catch (err) {
+      console.warn("Temporal Pulse (Video) failed.", err);
+      setEnhanceStatus('FAILED');
     }
   };
 
@@ -100,6 +111,7 @@ export const useChronos = () => {
 
   const reset = () => {
     setState('IDLE');
+    setEnhanceStatus('IDLE');
     setLore('');
     setImageUrl(null);
     setVideoUrl(null);
@@ -107,5 +119,5 @@ export const useChronos = () => {
     setError(null);
   };
 
-  return { state, lore, imageUrl, videoUrl, chronoPaths, error, reconstruct, exportCapsule, reset };
+  return { state, enhanceStatus, lore, imageUrl, videoUrl, chronoPaths, error, reconstruct, enhance, exportCapsule, reset };
 };
