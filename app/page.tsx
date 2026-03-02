@@ -35,7 +35,6 @@ export default function ChronosLab() {
 
   return (
     <main className="h-screen w-screen flex flex-col relative overflow-hidden bg-void font-mono">
-      {/* Rainbow Burst Effecter (Slash Layer) */}
       <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-chrono-cyan/5 to-transparent skew-x-12 -translate-x-20 pointer-events-none" />
 
       <header className="h-20 border-b border-white/10 flex items-center justify-between px-12 bg-black/80 backdrop-blur-2xl relative z-30">
@@ -96,7 +95,6 @@ export default function ChronosLab() {
         <section className="flex-1 flex flex-col gap-10">
           <div className="flex-1 flex items-center justify-center relative bg-black/40 rounded-[40px] border border-white/10 shadow-2xl overflow-hidden group">
              <div className="absolute inset-0 bg-void opacity-40 group-hover:opacity-20 transition-opacity" />
-             {/* Holographic Slashes */}
              <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
                 <div className="absolute top-[10%] left-[-10%] w-[120%] h-[2px] bg-chrono-cyan/20 -rotate-12 shadow-[0_0_15px_#00f2ff]" />
                 <div className="absolute bottom-[10%] right-[-10%] w-[120%] h-[2px] bg-chrono-purple/20 -rotate-12 shadow-[0_0_15px_#bc13fe]" />
