@@ -1,16 +1,20 @@
 {
-  "name": "Chronos Reconstruct",
-  "short_name": "Chronos",
-  "description": "A temporal adventure.",
+  "name": "Chronos.Alpha — Temporal Reconstruction Engine",
+  "short_name": "Chronos.Alpha",
+  "description": "An AI-powered artifact restoration engine. Submit any image and watch history reconstruct itself — lore, imagery, and cinematic animation generated across the quantum continuum.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#000000",
+  "orientation": "any",
+  "background_color": "#02040a",
+  "theme_color": "#02040a",
+  "categories": ["utilities", "productivity", "entertainment"],
   "icons": [
     {
       "src": "/favicon.ico",
       "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
+      "type": "image/x-icon",
+      "purpose": "any"
     }
   ]
 }
