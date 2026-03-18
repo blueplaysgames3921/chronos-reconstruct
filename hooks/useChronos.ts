@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Pollinations } from '@/lib/pollinations';
 import { SCIENTIFIC_RESTORATION_REPORT_PROMPT, FLUX_PROMPT } from '@/lib/constants';
 
@@ -46,6 +46,8 @@ export const useChronos = () => {
   const [sourceImageUrl, setSourceImageUrl] = useState<string>('');
   const completeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const currentEntryIdRef = useRef<string>('');
+  const videoAbortRef = useRef<AbortController | null>(null);
+  const videoBlobUrlRef = useRef<string | null>(null);
 
   useEffect(() => {
     return () => {
@@ -123,6 +125,15 @@ export const useChronos = () => {
 
   const enhance = async (apiKey: string) => {
     if (!imageUrl) return;
+
+    if (videoAbortRef.current) videoAbortRef.current.abort();
+    videoAbortRef.current = new AbortController();
+
+    if (videoBlobUrlRef.current) {
+      URL.revokeObjectURL(videoBlobUrlRef.current);
+      videoBlobUrlRef.current = null;
+    }
+
     setEnhanceStatus('SEARCHING');
     const pollinations = new Pollinations(apiKey);
 
@@ -132,22 +143,31 @@ export const useChronos = () => {
         { task: 'video', image: imageUrl }
       );
 
-      if (videoResponse.output) {
-        setVideoUrl(videoResponse.output);
-        setEnhanceStatus('SUCCESS');
+      if (!videoResponse.output) throw new Error('No corridor detected');
 
-        const entryId = currentEntryIdRef.current;
-        setHistory(prev => {
-          const updated = prev.map(e =>
-            e.id === entryId ? { ...e, videoUrl: videoResponse.output } : e
-          );
-          persistHistory(updated);
-          return updated;
-        });
-      } else {
-        throw new Error('No video output');
-      }
-    } catch {
+      const fetchRes = await fetch(videoResponse.output, {
+        signal: videoAbortRef.current.signal,
+      });
+
+      if (!fetchRes.ok) throw new Error('Corridor collapsed');
+
+      const blob = await fetchRes.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      videoBlobUrlRef.current = blobUrl;
+
+      setVideoUrl(blobUrl);
+      setEnhanceStatus('SUCCESS');
+
+      const entryId = currentEntryIdRef.current;
+      setHistory(prev => {
+        const updated = prev.map(e =>
+          e.id === entryId ? { ...e, videoUrl: videoResponse.output } : e
+        );
+        persistHistory(updated);
+        return updated;
+      });
+    } catch (err: any) {
+      if (err.name === 'AbortError') return;
       setEnhanceStatus('FAILED');
     }
   };
@@ -184,6 +204,11 @@ export const useChronos = () => {
 
   const reset = () => {
     if (completeTimerRef.current) clearTimeout(completeTimerRef.current);
+    if (videoAbortRef.current) videoAbortRef.current.abort();
+    if (videoBlobUrlRef.current) {
+      URL.revokeObjectURL(videoBlobUrlRef.current);
+      videoBlobUrlRef.current = null;
+    }
     setState('IDLE');
     setEnhanceStatus('IDLE');
     setLore('');
@@ -211,3 +236,4 @@ export const useChronos = () => {
     reset,
   };
 };
+
