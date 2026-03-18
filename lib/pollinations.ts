@@ -58,8 +58,20 @@ export class Pollinations {
       .join(' ');
 
     const encodedPrompt = encodeURIComponent(cleanPrompt);
-    const url = `${BASE_URL}/image/${encodedPrompt}?model=${model}&width=1024&height=1024&seed=${seed}&enhance=${enhance}&nologo=true&key=${this.apiKey}`;
 
+    if (task === 'video') {
+      const params = new URLSearchParams({
+        model,
+        seed: String(seed),
+        enhance,
+        nologo: 'true',
+        key: this.apiKey,
+      });
+      if (image) params.set('init_image', image);
+      return { output: `${BASE_URL}/image/${encodedPrompt}?${params.toString()}` };
+    }
+
+    const url = `${BASE_URL}/image/${encodedPrompt}?model=${model}&width=1024&height=1024&seed=${seed}&enhance=${enhance}&nologo=true&key=${this.apiKey}`;
     return { output: url };
   }
 }
