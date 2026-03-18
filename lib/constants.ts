@@ -11,9 +11,3 @@ export const FLUX_PROMPT = (lore: string) => `
 4K archaeological restoration of ancient artifact: ${lore.substring(0, 400)}. 
 Cinematic lighting, museum quality, photorealistic textures, studio background.
 `;
-
-export const POLLINATIONS_MODELS = {
-  FLUX: "flux",
-  SVD: "grok-video",
-  VISION: "gemini-fast",
-};
