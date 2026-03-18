@@ -33,18 +33,8 @@ export default function ChronosLab() {
   } = useChronos();
 
   useEffect(() => {
-    const fragment = new URLSearchParams(window.location.hash.slice(1));
-    const keyFromFragment = fragment.get('api_key');
-
-    if (keyFromFragment) {
-      localStorage.setItem(API_KEY_STORAGE_KEY, keyFromFragment);
-      window.history.replaceState(null, '', window.location.pathname + window.location.search);
-      setApiKey(keyFromFragment);
-    } else {
-      const stored = localStorage.getItem(API_KEY_STORAGE_KEY);
-      if (stored) setApiKey(stored);
-    }
-
+    const stored = localStorage.getItem(API_KEY_STORAGE_KEY);
+    if (stored) setApiKey(stored);
     setKeyChecked(true);
   }, []);
 
