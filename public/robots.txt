@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /auth
 
 Sitemap: https://chronos-reconstruct.vercel.app/sitemap.xml
