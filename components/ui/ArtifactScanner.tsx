@@ -8,12 +8,12 @@ interface ArtifactScannerProps {
 
 export const ArtifactScanner = ({ lore }: ArtifactScannerProps) => {
   const words = lore ? lore.split(' ') : [];
-  
+
   const container: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { staggerChildren: 0.03, delayChildren: 0.04 },
+      transition: { staggerChildren: 0.025, delayChildren: 0.04 },
     },
   };
 
@@ -35,15 +35,21 @@ export const ArtifactScanner = ({ lore }: ArtifactScannerProps) => {
 
   return (
     <motion.div
-      className="w-full max-w-2xl p-4 border border-cyan-border rounded-lg text-cyan-glow bg-black/30 backdrop-blur-xl relative"
+      className="w-full p-4 border border-chrono-cyan/20 rounded-lg text-chrono-cyan bg-black/30 backdrop-blur-xl relative"
       variants={container}
       initial="hidden"
       animate="visible"
     >
-      <div className="absolute top-2 right-4 text-xs text-cyan-glow/50">STATUS: RECONSTRUCTING</div>
-      <div className="flex flex-wrap">
+      <div className="absolute top-2 right-3 text-[8px] text-chrono-cyan/40 font-mono uppercase tracking-widest">
+        STATUS: RECONSTRUCTING
+      </div>
+      <div className="flex flex-wrap mt-4 gap-y-0.5">
         {words.map((word, index) => (
-          <motion.span key={`${word}-${index}`} variants={child} className="mr-1.5">
+          <motion.span
+            key={`${word}-${index}`}
+            variants={child}
+            className="mr-1.5 text-xs md:text-sm leading-relaxed"
+          >
             {word}
           </motion.span>
         ))}
