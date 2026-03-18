@@ -1,89 +1,159 @@
 'use client';
-import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
 import { useChronos } from '@/hooks/useChronos';
 import { SecureTerminal } from '@/components/ui/SecureTerminal';
 import { TerminalInput } from '@/components/ui/TerminalInput';
 import { ArtifactScanner } from '@/components/ui/ArtifactScanner';
 import { ChronoDisplay } from '@/components/ui/ChronoDisplay';
 import { StoryBranching } from '@/components/StoryBranching';
+import { HistorySidebar } from '@/components/ui/HistorySidebar';
+
+const API_KEY_STORAGE_KEY = 'chronos_api_key';
 
 export default function ChronosLab() {
   const [apiKey, setApiKey] = useState<string | null>(null);
-  const { 
-    state, 
-    enhanceStatus, 
-    lore, 
-    imageUrl, 
-    videoUrl, 
-    chronoPaths, 
-    error, 
-    reconstruct, 
-    enhance, 
-    exportCapsule, 
-    reset 
+  const [keyChecked, setKeyChecked] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const {
+    state,
+    enhanceStatus,
+    lore,
+    imageUrl,
+    videoUrl,
+    chronoPaths,
+    error,
+    history,
+    sourceImageUrl,
+    reconstruct,
+    enhance,
+    exportCapsule,
+    clearHistory,
+    reset,
   } = useChronos();
+
+  useEffect(() => {
+    const fragment = new URLSearchParams(window.location.hash.slice(1));
+    const keyFromFragment = fragment.get('api_key');
+
+    if (keyFromFragment) {
+      localStorage.setItem(API_KEY_STORAGE_KEY, keyFromFragment);
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      setApiKey(keyFromFragment);
+    } else {
+      const stored = localStorage.getItem(API_KEY_STORAGE_KEY);
+      if (stored) setApiKey(stored);
+    }
+
+    setKeyChecked(true);
+  }, []);
+
+  const handleDisconnect = () => {
+    localStorage.removeItem(API_KEY_STORAGE_KEY);
+    setApiKey(null);
+    reset();
+  };
+
+  if (!keyChecked) {
+    return (
+      <main className="h-screen w-screen flex items-center justify-center bg-void">
+        <div className="w-3 h-3 bg-chrono-cyan rounded-full animate-ping" />
+      </main>
+    );
+  }
 
   if (!apiKey) {
     return (
-      <main className="h-screen w-screen flex items-center justify-center p-6 bg-void overflow-hidden">
+      <main className="min-h-screen w-screen flex items-center justify-center p-4 sm:p-6 bg-void overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(188,19,254,0.1)_0%,transparent_70%)] animate-pulse" />
-        <SecureTerminal onApiKeySet={setApiKey} />
+        <SecureTerminal />
       </main>
     );
   }
 
   return (
-    <main className="h-screen w-screen flex flex-col relative overflow-hidden bg-void font-mono">
+    <main className="min-h-screen md:h-screen w-screen flex flex-col relative md:overflow-hidden bg-void font-mono">
       <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-chrono-cyan/5 to-transparent skew-x-12 -translate-x-20 pointer-events-none" />
 
-      <header className="h-20 border-b border-white/10 flex items-center justify-between px-12 bg-black/80 backdrop-blur-2xl relative z-30">
-        <div className="flex items-center gap-8">
-          <div className="text-3xl font-black italic tracking-tighter text-white glitch-effect cursor-crosshair">
+      <header className="h-14 md:h-20 border-b border-white/10 flex items-center justify-between px-4 md:px-12 bg-black/80 backdrop-blur-2xl relative z-30 flex-shrink-0">
+        <div className="flex items-center gap-4 md:gap-8">
+          <div className="text-lg md:text-3xl font-black italic tracking-tighter text-white glitch-effect cursor-crosshair">
             CHRONOS<span className="text-chrono-purple">.ALPHA</span>
           </div>
-          <div className="hidden md:flex flex-col border-l border-white/20 pl-6">
+          <div className="hidden lg:flex flex-col border-l border-white/20 pl-6">
             <span className="text-[10px] font-black uppercase text-chrono-cyan leading-none">Command / Temporal_Slash</span>
             <span className="text-[9px] text-white/40">LATENCY_SYNC: 0.002ms</span>
           </div>
         </div>
 
-        <div className="flex items-center gap-12">
-           <div className="text-right">
-              <div className="text-[10px] font-bold text-white/30 uppercase tracking-widest">Protocol Status</div>
-              <div className="text-sm font-black text-chrono-cyan digital-fire-text uppercase">{state}</div>
-           </div>
-           <button onClick={reset} className="p-3 border-2 border-chrono-purple/30 rounded-full hover:border-chrono-purple transition-all hover:shadow-[0_0_15px_#bc13fe]">
-              <svg className="w-5 h-5 text-chrono-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-           </button>
+        <div className="flex items-center gap-2 md:gap-4">
+          <div className="hidden sm:block text-right">
+            <div className="text-[10px] font-bold text-white/30 uppercase tracking-widest">Protocol Status</div>
+            <div className="text-xs md:text-sm font-black text-chrono-cyan digital-fire-text uppercase">{state}</div>
+          </div>
+
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="relative p-2 md:p-3 border border-white/20 rounded-lg hover:border-chrono-cyan/50 transition-all text-white/50 hover:text-chrono-cyan"
+          >
+            <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {history.length > 0 && (
+              <span className="absolute -top-1 -right-1 w-4 h-4 bg-chrono-purple text-white text-[8px] font-black rounded-full flex items-center justify-center">
+                {history.length > 9 ? '9+' : history.length}
+              </span>
+            )}
+          </button>
+
+          <button
+            onClick={reset}
+            className="p-2 md:p-3 border-2 border-chrono-purple/30 rounded-full hover:border-chrono-purple transition-all hover:shadow-[0_0_15px_#bc13fe]"
+          >
+            <svg className="w-4 h-4 md:w-5 md:h-5 text-chrono-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </button>
+
+          <button
+            onClick={handleDisconnect}
+            className="hidden sm:flex items-center gap-1.5 px-3 py-2 border border-history-red/20 rounded-lg hover:border-history-red/50 transition-all text-history-red/40 hover:text-history-red/80 text-[10px] font-black uppercase tracking-wider"
+          >
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            <span className="hidden md:inline">Disconnect</span>
+          </button>
         </div>
       </header>
 
-      <div className="flex-1 p-10 flex gap-10 overflow-hidden relative z-20">
-        <aside className="w-[480px] flex flex-col gap-8">
-          <div className="chrome-container p-10 rounded-3xl relative overflow-hidden group">
+      <div className="flex-1 flex flex-col md:flex-row gap-4 md:gap-10 p-4 md:p-10 md:overflow-hidden relative z-20">
+        <aside className="w-full md:w-[420px] lg:w-[480px] flex flex-col gap-4 md:gap-8 md:flex-shrink-0">
+          <div className="chrome-container p-5 md:p-10 rounded-3xl relative overflow-hidden group">
             <div className="absolute -top-10 -left-10 w-32 h-32 bg-chrono-cyan/10 rounded-full blur-3xl group-hover:bg-chrono-purple/20 transition-colors" />
-            <h2 className="text-xs font-black text-white uppercase tracking-[0.5em] mb-8 border-b border-white/10 pb-4 flex justify-between">
+            <h2 className="text-xs font-black text-white uppercase tracking-[0.5em] mb-5 md:mb-8 border-b border-white/10 pb-4 flex justify-between">
               <span>Input_Nexus</span>
               <span className="text-chrono-cyan">READY</span>
             </h2>
             <TerminalInput onSubmit={(url) => reconstruct(url, apiKey)} />
           </div>
 
-          <div className="chrome-container rounded-3xl flex-1 overflow-hidden flex flex-col relative border-t-2 border-chrono-purple/50">
-            <div className="p-8 border-b border-white/10 bg-black/20 flex justify-between items-center">
+          <div className="chrome-container rounded-3xl flex-1 overflow-hidden flex flex-col relative border-t-2 border-chrono-purple/50 min-h-[180px] md:min-h-0">
+            <div className="p-4 md:p-8 border-b border-white/10 bg-black/20 flex justify-between items-center flex-shrink-0">
               <h2 className="text-xs font-black text-white uppercase tracking-widest">Data_Stream</h2>
               <div className="flex gap-1">
-                 <div className="w-1 h-4 bg-chrono-cyan animate-pulse" />
-                 <div className="w-1 h-4 bg-chrono-purple animate-pulse delay-75" />
-                 <div className="w-1 h-4 bg-history-red animate-pulse delay-150" />
+                <div className="w-1 h-4 bg-chrono-cyan animate-pulse" />
+                <div className="w-1 h-4 bg-chrono-purple animate-pulse delay-75" />
+                <div className="w-1 h-4 bg-history-red animate-pulse delay-150" />
               </div>
             </div>
-            <div className="flex-1 overflow-y-auto p-10 scrollbar-hide">
+            <div className="flex-1 overflow-y-auto p-5 md:p-10 scrollbar-hide">
               {error ? (
-                <div className="text-history-red font-bold animate-pulse">{error}</div>
-              ) : lore ? <ArtifactScanner lore={lore} /> : (
-                <div className="h-full flex flex-col items-center justify-center opacity-40">
+                <div className="text-history-red font-bold animate-pulse text-sm">{error}</div>
+              ) : lore ? (
+                <ArtifactScanner lore={lore} />
+              ) : (
+                <div className="h-full flex flex-col items-center justify-center opacity-40 py-6">
                   <div className="text-[10px] font-black text-chrono-cyan mb-4 tracking-[0.3em] uppercase">Deep Scan Required</div>
                   <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-chrono-cyan to-transparent animate-pulse" />
                 </div>
@@ -92,35 +162,47 @@ export default function ChronosLab() {
           </div>
         </aside>
 
-        <section className="flex-1 flex flex-col gap-10">
-          <div className="flex-1 flex items-center justify-center relative bg-black/40 rounded-[40px] border border-white/10 shadow-2xl overflow-hidden group">
-             <div className="absolute inset-0 bg-void opacity-40 group-hover:opacity-20 transition-opacity" />
-             <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
-                <div className="absolute top-[10%] left-[-10%] w-[120%] h-[2px] bg-chrono-cyan/20 -rotate-12 shadow-[0_0_15px_#00f2ff]" />
-                <div className="absolute bottom-[10%] right-[-10%] w-[120%] h-[2px] bg-chrono-purple/20 -rotate-12 shadow-[0_0_15px_#bc13fe]" />
-             </div>
-
-             <ChronoDisplay 
-                state={state} 
-                imageUrl={imageUrl} 
-                videoUrl={videoUrl} 
-                enhanceStatus={enhanceStatus}
-                onEnhance={() => enhance(apiKey)}
-             />
+        <section className="flex-1 flex flex-col gap-4 md:gap-8 md:overflow-hidden">
+          <div className="flex-1 flex items-center justify-center relative bg-black/40 rounded-[32px] md:rounded-[40px] border border-white/10 shadow-2xl overflow-hidden group min-h-[240px] md:min-h-0">
+            <div className="absolute inset-0 bg-void opacity-40 group-hover:opacity-20 transition-opacity" />
+            <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
+              <div className="absolute top-[10%] left-[-10%] w-[120%] h-[2px] bg-chrono-cyan/20 -rotate-12 shadow-[0_0_15px_#00f2ff]" />
+              <div className="absolute bottom-[10%] right-[-10%] w-[120%] h-[2px] bg-chrono-purple/20 -rotate-12 shadow-[0_0_15px_#bc13fe]" />
+            </div>
+            <ChronoDisplay
+              state={state}
+              imageUrl={imageUrl}
+              videoUrl={videoUrl}
+              enhanceStatus={enhanceStatus}
+              onEnhance={() => enhance(apiKey)}
+            />
           </div>
 
-          <div className="h-44 chrome-container p-8 rounded-3xl flex items-center justify-center relative overflow-hidden border-b-4 border-chrono-cyan/30">
-             {state === 'COMPLETE' ? (
-               <StoryBranching chronoPaths={chronoPaths} onExport={exportCapsule} />
-             ) : (
-               <div className="flex flex-col items-center gap-2">
-                  <div className="text-[10px] font-black tracking-[1em] uppercase text-white/20">Timeline_Sync_Buffer</div>
-                  <div className="w-64 h-1 bg-white/5 rounded-full overflow-hidden" />
-                 </div>
-             )}
+          <div className="chrome-container p-4 md:p-8 rounded-3xl flex items-center justify-center relative overflow-hidden border-b-4 border-chrono-cyan/30 md:h-44 md:flex-shrink-0">
+            {state === 'COMPLETE' ? (
+              <StoryBranching
+                chronoPaths={chronoPaths}
+                onExport={exportCapsule}
+                onReset={reset}
+                onDiverge={() => reconstruct(sourceImageUrl, apiKey)}
+              />
+            ) : (
+              <div className="flex flex-col items-center gap-2 py-4 md:py-0">
+                <div className="text-[10px] font-black tracking-[0.5em] md:tracking-[1em] uppercase text-white/20">Timeline_Sync_Buffer</div>
+                <div className="w-64 h-1 bg-white/5 rounded-full overflow-hidden" />
+              </div>
+            )}
           </div>
         </section>
       </div>
+
+      <HistorySidebar
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        history={history}
+        onClearHistory={clearHistory}
+      />
     </main>
   );
 }
+
