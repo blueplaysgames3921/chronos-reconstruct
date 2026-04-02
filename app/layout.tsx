@@ -62,7 +62,7 @@ export const metadata: Metadata = {
   },
 
   verification: {
-    google: "kC-kuA97R9ZCDpar9AAtq0--uVgzRJC1K5YDWPTMeEc",
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
   },
 
   alternates: {
