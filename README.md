@@ -53,6 +53,6 @@ The layout is fully responsive and works on both desktop and mobile.
 
 - **Gemini Fast** — vision analysis and lore generation
 - **Flux** — photorealistic image reconstruction
-- **Grok-Video** — experimental temporal animation
+- **LTX-2** — experimental temporal animation
 - **Pollinations AI** — unified inference API and BYOP auth layer
 
