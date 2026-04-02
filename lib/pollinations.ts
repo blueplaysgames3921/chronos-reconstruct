@@ -48,7 +48,7 @@ export class Pollinations {
       return { output: result.choices[0]?.message?.content ?? '' };
     }
 
-    const model = task === 'video' ? 'grok-video' : 'flux';
+    const model = task === 'video' ? 'ltx-2' : 'flux';
     const enhance = task === 'video' ? 'false' : 'true';
 
     const cleanPrompt = prompt
