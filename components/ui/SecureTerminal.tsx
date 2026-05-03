@@ -5,8 +5,8 @@ import { motion } from 'framer-motion';
 export const SecureTerminal = () => {
   const handleAuth = () => {
     const params = new URLSearchParams({
-      redirect_url: `${window.location.origin}/auth`,
-      app_key: 'pk_XFnEUbJl0hKG0A7Z',
+      redirect_uri: `${window.location.origin}/auth`,
+      client_id: 'pk_XFnEUbJl0hKG0A7Z',
     });
     window.location.href = `https://enter.pollinations.ai/authorize?${params}`;
   };
@@ -101,3 +101,4 @@ export const SecureTerminal = () => {
     </div>
   );
 };
+
